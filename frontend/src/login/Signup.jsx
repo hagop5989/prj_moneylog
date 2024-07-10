@@ -32,6 +32,8 @@ export function Signup() {
   const toast = useToast();
   const navigate = useNavigate();
   const [pwdShow, setPwdShow] = useState(false);
+  const [numCheckShow, setNumCheckShow] = useState(false);
+  const [numbers, setNumbers] = useState("");
 
   const handlePwdClick = () => setPwdShow(!pwdShow);
   // const handlePwdCheckClick = () => setPwdCheckShow(!pwdCheckShow);
@@ -117,10 +119,33 @@ export function Signup() {
           mytoast("발송불가. 다시 확인해주세요", "error");
         } else {
           mytoast("이메일이 발송되었습니다. 확인해주세요");
+          setNumCheckShow(true);
         }
       })
       .catch((err) => {})
       .finally();
+  }
+
+  const buttonStyle = () => ({
+    bgColor: "blue.400",
+    color: "white",
+    fontWeight: "medium",
+  });
+
+  function handleNumCheck() {
+    axios
+      .get("api/num-check", { params: { numbers, email: newMember.email } })
+      .then((res) => {
+        if (res.status === 200) {
+          alert("인증완료");
+          setNumCheckShow(false);
+        }
+      })
+      .catch((err) => {
+        if (err.response.status === 400) {
+          alert("인증오류발생. 다시 확인해주세요");
+        }
+      });
   }
 
   return (
@@ -212,10 +237,28 @@ export function Signup() {
                   fontWeight={"medium"}
                   display={emailCheck ? "block" : "none"}
                 >
-                  인증번호확인
+                  인증번호발송
                 </Button>
               </InputRightElement>
             </InputGroup>
+            {numCheckShow && (
+              <Box>
+                인증번호확인
+                <InputGroup>
+                  <Input
+                    type={"number"}
+                    onChange={(e) => {
+                      setNumbers(e.target.value);
+                    }}
+                  />
+                  <InputRightElement w={"60px"}>
+                    <Button onClick={handleNumCheck} {...buttonStyle()}>
+                      확인
+                    </Button>
+                  </InputRightElement>
+                </InputGroup>
+              </Box>
+            )}
             <Flex justifyContent="center">
               <Button
                 isDisabled={!emailCheck || !nickNameCheck || !passwordCheck}

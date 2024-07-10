@@ -5,10 +5,7 @@ import com.backend.service.member.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -43,6 +40,15 @@ public class AuthController {
             return ResponseEntity.status(500).body(e);
         }
         return null;
+    }
+
+    @GetMapping("num-check")
+    public ResponseEntity numCheck(@RequestParam String email, @RequestParam String numbers) {
+        boolean numberCheck = this.numbers.get(email).equals(numbers);
+        if (numberCheck) {
+            return ResponseEntity.ok().body(true);
+        }
+        return ResponseEntity.badRequest().build();
     }
 
     private void scheduleRemoval(String key, long delay, TimeUnit unit) {
