@@ -1,0 +1,21 @@
+/* App.css */
+@font-face {
+    font-family: 'GmarketSansMedium';
+    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+    font-family: 'GmarketSansMedium', sans-serif;
+}
+
+
+.react-datepicker__day--in-selecting-range,
+.react-datepicker__day--in-range,
+.react-datepicker__day--selecting-range-start,
+.react-datepicker__day--range-start,
+.react-datepicker__day--range-end {
+    background-color: transparent !important;
+    color: inherit !important;
+}
