@@ -2,6 +2,8 @@ package com.backend.service.board;
 
 import com.backend.domain.board.Board;
 import com.backend.mapper.board.BoardMapper;
+import com.backend.mapper.board.modal.ModalMapper;
+import com.backend.service.board.modal.ModalService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +15,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BoardService {
     private final BoardMapper mapper;
+    private final ModalService modalService;
+    private final ModalMapper modalMapper;
 
     public void addRow(Board board) {
         String[] categories = board.getCategories();
@@ -32,6 +36,7 @@ public class BoardService {
     }
 
     public void deleteRow(Integer rowId) {
+        modalService.deleteByRowId(rowId);
         int i = mapper.deleteRowById(rowId);
 
     }

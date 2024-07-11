@@ -9,11 +9,12 @@ import {
   FormLabel,
   Heading,
   Input,
+  Text,
   InputGroup,
   InputRightElement,
   useToast,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -34,6 +35,8 @@ export function Signup() {
   const [pwdShow, setPwdShow] = useState(false);
   const [numCheckShow, setNumCheckShow] = useState(false);
   const [numbers, setNumbers] = useState("");
+  const [seconds, setSeconds] = useState(120);
+  const [isActive, setIsActive] = useState(false);
 
   const handlePwdClick = () => setPwdShow(!pwdShow);
   // const handlePwdCheckClick = () => setPwdCheckShow(!pwdCheckShow);
@@ -119,6 +122,8 @@ export function Signup() {
           mytoast("발송불가. 다시 확인해주세요", "error");
         } else {
           mytoast("이메일이 발송되었습니다. 확인해주세요");
+          setSeconds(120);
+          startCountdown();
           setNumCheckShow(true);
         }
       })
@@ -148,11 +153,28 @@ export function Signup() {
       });
   }
 
+  useEffect(() => {
+    let interval = null;
+    if (isActive && seconds > 0) {
+      interval = setInterval(() => {
+        setSeconds((seconds) => seconds - 1);
+      }, 1000);
+    } else if (seconds === 0) {
+      clearInterval(interval);
+      setIsActive(false);
+    }
+    return () => clearInterval(interval);
+  }, [isActive, seconds]);
+
+  const startCountdown = () => {
+    setIsActive(true);
+  };
+
   return (
     <Box>
       <Heading>회원가입</Heading>
       <Flex justifyContent={"center"} alignItems={"center"}>
-        <Center w={"30%"}>
+        <Center w={"50%"}>
           <FormControl>
             <FormLabel>이름(닉네임)</FormLabel>
             <InputGroup>
@@ -167,9 +189,7 @@ export function Signup() {
               <InputRightElement w={75} mr={1}>
                 <Button
                   onClick={handleSignupNickNameCheck}
-                  bgColor={"blue.400"}
-                  color={"white"}
-                  fontWeight={"medium"}
+                  {...buttonStyle()}
                   isDisabled={nickNameCheck}
                 >
                   중복확인
@@ -219,28 +239,29 @@ export function Signup() {
                   setEmailCheck(false);
                 }}
               />
-              <InputRightElement w={75} mr={1}>
+              <InputRightElement w={"100px"}>
                 <Button
+                  minW={"80px"}
                   onClick={handleSignupEmailCheck}
-                  bgColor={"blue.400"}
-                  color={"white"}
-                  fontWeight={"medium"}
+                  {...buttonStyle()}
                   display={!emailCheck ? "block" : "none"}
-                  // isDisabled={emailCheck}
                 >
-                  중복확인
+                  <Text>중복확인</Text>
                 </Button>
+
                 <Button
+                  minW={"120px"}
                   onClick={handleSendEmail}
-                  bgColor={"blue.400"}
-                  color={"white"}
-                  fontWeight={"medium"}
+                  {...buttonStyle()}
                   display={emailCheck ? "block" : "none"}
                 >
                   인증번호발송
                 </Button>
               </InputRightElement>
             </InputGroup>
+            {numCheckShow && seconds > 0 && (
+              <FormHelperText> {seconds}초 내에 인증해주세요.</FormHelperText>
+            )}
             {numCheckShow && (
               <Box>
                 인증번호확인
@@ -251,8 +272,12 @@ export function Signup() {
                       setNumbers(e.target.value);
                     }}
                   />
-                  <InputRightElement w={"60px"}>
-                    <Button onClick={handleNumCheck} {...buttonStyle()}>
+                  <InputRightElement>
+                    <Button
+                      minW={"60px"}
+                      onClick={handleNumCheck}
+                      {...buttonStyle()}
+                    >
                       확인
                     </Button>
                   </InputRightElement>

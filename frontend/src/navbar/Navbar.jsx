@@ -42,9 +42,8 @@ function Navbar(props) {
                 가계부 작성
               </Box>
               <Spacer w={1000} />
-              <Box {...navCss} cursor={"default"}>
+              <Box {...navCss} onClick={() => navigate("/member-edit")}>
                 {account.nickName}
-                {"   "}
                 <FontAwesomeIcon icon={faUser} />
               </Box>
               <Box onClick={() => navigate("/analysis")} {...navCss}>

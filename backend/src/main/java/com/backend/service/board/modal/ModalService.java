@@ -103,4 +103,12 @@ public class ModalService {
         modalMapper.update(modal);
 
     }
+
+    public void deleteByRowId(Integer rowId) {
+        List<Modal> modals = modalMapper.selectByRowId(rowId);
+        // RowId 기준으로 모달을 찾아와서 삭제.
+        for (Modal modal : modals) {
+            delete(modal);
+        }
+    }
 }

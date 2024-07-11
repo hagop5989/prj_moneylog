@@ -71,15 +71,14 @@ export function Login() {
               handleLogin();
             }}
           >
-            <FormControl id="nickname">
-              <FormLabel>이름(닉네임)</FormLabel>
+            <FormControl id="email">
+              <FormLabel>이메일</FormLabel>
               <InputGroup>
                 <Input
-                  value={loginMember.nickName}
-                  placeholder={"공백은 입력불가 합니다."}
-                  onChange={(e) => handleLoginMember("nickName", e)}
+                  value={loginMember.email}
+                  placeholder={"abc@abc.com"}
+                  onChange={(e) => handleLoginMember("email", e)}
                 />
-                <InputRightElement w={75} mr={1}></InputRightElement>
               </InputGroup>
             </FormControl>
 
@@ -93,17 +92,6 @@ export function Login() {
                   "8자 ~16자 이하, 1개 이상 영문자, 숫자, 특수문자 포함"
                 }
               />
-            </FormControl>
-
-            <FormControl id="email">
-              <FormLabel>이메일</FormLabel>
-              <InputGroup>
-                <Input
-                  value={loginMember.email}
-                  placeholder={"abc@abc.com"}
-                  onChange={(e) => handleLoginMember("email", e)}
-                />
-              </InputGroup>
             </FormControl>
 
             <Flex justifyContent="center">

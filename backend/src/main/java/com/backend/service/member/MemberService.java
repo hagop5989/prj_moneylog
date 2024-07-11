@@ -69,6 +69,7 @@ public class MemberService {
         Map<String, Object> result = null;
 
         Member dbMember = mapper.selectByMemberEmail(member);
+        System.out.println("dbMember = " + dbMember);
         if (dbMember != null) {
             if (passwordEncoder.matches(member.getPassword(), dbMember.getPassword())) {
                 result = new HashMap<>();

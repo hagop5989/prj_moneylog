@@ -5,16 +5,17 @@ import { Page1 } from "./Page1.jsx";
 import "./App.css";
 import Analysis from "./board/Analysis.jsx";
 import React, { useState } from "react";
-import { Login } from "./login/Login.jsx";
+import { Login } from "./member/Login.jsx";
 import styled from "@emotion/styled";
 import axios from "axios";
 import { Home } from "./home/Home.jsx";
 import { ThemeProvider as EmotionThemeProvider } from "@emotion/react";
 import BoardList from "./board/BoardList.jsx";
-import { Signup } from "./login/Signup.jsx";
+import { Signup } from "./member/Signup.jsx";
 import AddressForm from "./board/AddressForm.jsx";
 import { faMoon, faSun } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import MemberEdit from "./member/MemberEdit.jsx";
 
 // axios interceptor 설정
 axios.interceptors.request.use((config) => {
@@ -63,6 +64,7 @@ const router = createBrowserRouter([
       { path: "analysis", element: <Analysis /> },
       { path: "signup", element: <Signup /> },
       { path: "login", element: <Login /> },
+      { path: "member-edit", element: <MemberEdit /> },
       { path: "test", element: <AddressForm /> },
     ],
   },

@@ -64,4 +64,12 @@ public interface ModalMapper {
             """)
     int deleteFileNameById(Integer modalId);
 
+
+    @Select("""
+            SELECT * 
+            FROM modal 
+            WHERE board_id = #{rowId}
+            """)
+    List<Modal> selectByRowId(Integer rowId);
+
 }

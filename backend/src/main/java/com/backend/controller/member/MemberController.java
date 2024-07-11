@@ -21,10 +21,6 @@ public class MemberController {
 
     private final MemberService service;
 
-    @PostMapping("test")
-    public void signup() {
-        System.out.println("working!");
-    }
 
     @PostMapping("signup")
     public ResponseEntity signup(@Validated @RequestBody MemberSignupForm form, BindingResult bindingResult) {
@@ -54,7 +50,9 @@ public class MemberController {
 
     @PostMapping("token")
     public ResponseEntity token(@RequestBody Member member) {
+        System.out.println("member = " + member);
         Map<String, Object> token = service.getToken(member);
+        System.out.println("service.getToken(member) = " + service.getToken(member));
         if (token == null) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
