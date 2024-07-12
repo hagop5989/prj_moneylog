@@ -47,21 +47,7 @@ public class ModalService {
                 s3Client.putObject(objectRequest,
                         RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
 
-//                 부모 디렉토리 만들기
-//                String dir = STR."C:/Temp/prj3/\{modal.getId()}";
-//                File dirFile = new File(dir);
-//                if (!dirFile.exists()) {
-//                    dirFile.mkdirs();
-//                }
-//                // 파일 경로
-//                String path = STR."C:/Temp/prj3/\{modal.getId()}/\{file.getOriginalFilename()}";
-//                File destination = new File(path);
-//                file.transferTo(destination);
             }
-//            List<String> foundFile
-//                    = modalMapper.selectFileNameByModalId(modal.getId());
-//            System.out.println("저장한 파일  = " + foundFile.toString());
-            // 실제 파일 저장
         }
     }
 
@@ -91,11 +77,9 @@ public class ModalService {
 
                 s3Client.deleteObject(objectRequest);
             }
-
             modalMapper.deleteFileNameById(modal.getId());
 
-            int delete = modalMapper.delete(dbModal);
-            System.out.println("delete개수 = " + delete);
+            modalMapper.delete(dbModal);
         }
     }
 
@@ -110,5 +94,17 @@ public class ModalService {
         for (Modal modal : modals) {
             delete(modal);
         }
+    }
+
+    public void deleteImage(String id, String fileName) {
+        String key = STR."prj2/\{id}/\{fileName}";
+        DeleteObjectRequest objectRequest = DeleteObjectRequest.builder()
+                .bucket(bucketName)
+                .key(key)
+                .build();
+
+        s3Client.deleteObject(objectRequest);
+        modalMapper.deleteFileNameById(Integer.parseInt(id));
+
     }
 }

@@ -45,7 +45,6 @@ export function Login() {
   }
 
   const [loginMember, setLoginMember] = useState({
-    nickName: "",
     password: "",
     email: "",
   });

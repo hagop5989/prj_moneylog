@@ -3,9 +3,11 @@ import {
   Button,
   Card,
   CardBody,
+  CloseButton,
   Flex,
   Image,
   Input,
+  InputRightAddon,
   ModalBody,
   ModalFooter,
   ModalHeader,
@@ -31,13 +33,15 @@ export function MyModalBody({ editRow }) {
   const toast = useToast();
   const [modalRows, setModalRows] = useState([]);
   const [modalInputRow, setModalInputRow] = useState({
-    id: "",
+    modalId: "",
     boardId: editRow.id,
     nickName: account.nickName,
     text: "",
     likeState: true,
     fileList: [],
   });
+  const [showAddFileBtn, setShowAddFileBtn] = useState(false);
+  const [addFileRowId, setAddFileRowId] = useState(null);
 
   // file 목록 작성
   const fileNameList = [];
@@ -83,6 +87,16 @@ export function MyModalBody({ editRow }) {
       .then((res) => {
         myToast(toast, "입력완료 되었습니다.", "success");
         setAxiosState(!axiosState);
+        setModalInputRow({
+          id: "",
+          boardId: editRow.id,
+          nickName: account.nickName,
+          text: "",
+          likeState: true,
+          fileList: [],
+        });
+        setFiles([]);
+        document.getElementById("file-input").value = null; // 파일 입력 초기화
       })
       .catch(() => {})
       .finally(() => {});
@@ -123,8 +137,33 @@ export function MyModalBody({ editRow }) {
   }, [axiosState]);
 
   const handleImageClick = (src) => {
-    window.open(src, "_blank");
+    window.open(src, "_blank", "noopener,noreferrer");
   };
+
+  function handleDeleteImage(rowId, fileName) {
+    axios
+      .delete("/api/board/modal/delete-img", {
+        params: { id: rowId, fileName },
+      })
+      .then((res) => {
+        myToast(toast, "삭제 완료되었습니다", "success");
+        setAxiosState(!axiosState);
+      })
+      .catch((err) => {
+        myToast(toast, "삭제 실패", "error");
+      });
+  }
+
+  /* todo: 개별파일 삭제 구현 */
+  function handleAddFile(rowId) {
+    setAddFileRowId(rowId);
+    setShowAddFileBtn(!showAddFileBtn);
+    axios.postForm("/api/board/modal/insert", {
+      rowId,
+      files,
+    });
+  }
+
   return (
     <>
       <ModalHeader>{editRow.date} 댓글 </ModalHeader>
@@ -135,21 +174,14 @@ export function MyModalBody({ editRow }) {
           {(editRow.income - editRow.expense).toLocaleString()} ]
         </Box>
         <Tr>
-          <Th textAlign={"center"} w={"10%"}>
-            #
-          </Th>
-          <Th textAlign={"center"} w={"20%"}>
-            작성자
-          </Th>
-          <Th textAlign={"center"} w={"50%"}>
-            의견
-          </Th>
-          <Th textAlign={"center"} w={"10%"} fontSize={"1rem"}>
+          <Th width="5%">#</Th>
+          <Th width="15%">작성자</Th>
+          <Th width="30%">의견</Th>
+          <Th width="10%">
             <FontAwesomeIcon icon={faThumbsUp} />
           </Th>
-          <Th textAlign={"center"} w={"10%"}>
-            입력
-          </Th>
+          <Th width="30%">사진</Th>
+          <Th width="10%">입력</Th>
         </Tr>
         <>
           {modalRows.map((row) => (
@@ -174,7 +206,7 @@ export function MyModalBody({ editRow }) {
                 />
               </Td>
               <Td>
-                <Button m={2} onClick={() => handleLikeToggle(row.id)}>
+                <Button mx={2} onClick={() => handleLikeToggle(row.id)}>
                   {row.likeState === true && (
                     <FontAwesomeIcon color={"blue"} icon={faThumbsUp} />
                   )}
@@ -183,21 +215,50 @@ export function MyModalBody({ editRow }) {
                   )}
                 </Button>
               </Td>
-              <Td>
+              <Td maxH="200px" overflow="auto" verticalAlign="top">
                 {row.fileList &&
                   row.fileList.map((file) => (
-                    <Card m={3} key={file.name}>
-                      <CardBody w={200}>
+                    <Card key={file.name} m={2} maxH="190px">
+                      <CardBody
+                        height="100%"
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
+                      >
                         <Image
                           cursor="pointer"
                           onClick={() => handleImageClick(file.src)}
-                          w={"100%"}
-                          h={"100%"}
+                          maxW="100%"
+                          maxH="100%"
+                          objectFit={"contain"}
                           src={file.src}
                         />
+                        <CloseButton
+                          onClick={() => handleDeleteImage(row.id, file.name)}
+                          position={"absolute"}
+                          right={"20px"}
+                          top={"10px"}
+                        >
+                          X
+                        </CloseButton>
                       </CardBody>
                     </Card>
                   ))}
+                <Button
+                  display={!showAddFileBtn ? "block" : "none"}
+                  colorScheme={"teal"}
+                  onClick={() => handleAddFile(row.id)}
+                >
+                  파일추가
+                </Button>
+                {row.fileList.length < 0 || (
+                  <Input
+                    display={showAddFileBtn ? "block" : "none"}
+                    type={"file"}
+                    colorScheme={"teal"}
+                    onChange={(e) => setFiles(e.target.files)}
+                  />
+                )}
               </Td>
               <Td>
                 <Flex boxSize={"10%"} gap={2} fontWeight={"sm"}>
@@ -242,12 +303,13 @@ export function MyModalBody({ editRow }) {
             onChange={(e) => handleInputChange("text", e.target.value)}
           />
           <Input
-            multiple
+            id="file-input"
+            // multiple
             type={"file"}
             onChange={(e) => {
               setFiles(e.target.files);
             }}
-          ></Input>
+          />
           <Button
             w={100}
             mt={2}

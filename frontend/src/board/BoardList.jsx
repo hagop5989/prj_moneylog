@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import {
   Box,
   Button,
+  Center,
   Flex,
   Input,
   InputGroup,
@@ -413,7 +414,7 @@ const Row = ({
           </Button>
           <Modal isOpen={isOpen} onClose={onClose} size="lg">
             <ModalOverlay />
-            <ModalContent maxWidth="45%" maxHeight="100%">
+            <ModalContent minW={"65%"} maxHeight="100%">
               <MyModalBody editRow={editRow} />
             </ModalContent>
           </Modal>

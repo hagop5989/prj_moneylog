@@ -38,4 +38,9 @@ public class ModalController {
     public void update(@RequestBody Modal modal) {
         service.update(modal);
     }
+
+    @DeleteMapping("delete-img")
+    public void deleteImage(@RequestParam String id, @RequestParam String fileName) {
+        service.deleteImage(id, fileName);
+    }
 }
