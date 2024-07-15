@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -33,6 +33,7 @@ function MemberEdit(props) {
   const handlePwdClick = () => setPwdShow(!pwdShow);
   const navigate = useNavigate();
   const [pwdShow, setPwdShow] = useState(false);
+  let toast = useToast();
   function handleSetMember(field, e) {
     setNewMember((member) => ({
       ...member,
@@ -44,7 +45,7 @@ function MemberEdit(props) {
     axios
       .get(`/api/member/signupCheck?nickName=${newMember.nickName}`)
       .then(() => {
-        myToast("변경 가능합니다.", "info");
+        myToast(toast, "변경 가능합니다.", "info");
         setNickNameCheck(true);
       })
       .catch((err) => {
@@ -58,17 +59,17 @@ function MemberEdit(props) {
 
   function handleEdit() {
     axios
-      .post("/api/member/signup", newMember)
+      .post("/api/member/update", newMember)
       .then(() => {
-        myToast("수정 완료되었습니다.", "success");
+        myToast(toast, "수정 완료되었습니다.", "success");
         navigate("/");
       })
       .catch((e) => {
         if (e.response.status === 400) {
           if (e.response.data.password) {
-            myToast(e.response.data.password, "error");
+            myToast(toast, e.response.data.password, "error");
           } else {
-            myToast("입력 값을 다시 확인해주세요", "error");
+            myToast(toast, "입력 값을 다시 확인해주세요", "error");
           }
         }
       })
@@ -77,6 +78,13 @@ function MemberEdit(props) {
         setNickNameCheck(false);
       });
   }
+
+  useEffect(() => {
+    axios.get("api/member/update").then((res) => {
+      setNewMember(res.data);
+      myToast(toast, "로드완료", "info");
+    });
+  }, []);
 
   const buttonStyle = () => ({
     bgColor: "blue.400",
@@ -90,6 +98,10 @@ function MemberEdit(props) {
       <Flex justifyContent={"center"} alignItems={"center"}>
         <Center w={"50%"}>
           <FormControl>
+            <Flex my={3}>
+              <FormLabel>이메일 :</FormLabel>
+              <Text fontSize={"lg"}>{newMember.email}</Text>
+            </Flex>
             <FormLabel>이름(닉네임)</FormLabel>
             <InputGroup>
               <Input
@@ -115,7 +127,7 @@ function MemberEdit(props) {
             <InputGroup>
               <Input
                 type={pwdShow ? "text" : "password"}
-                value={newMember.password}
+                defaultValue={""}
                 onChange={(e) => handleSetMember("password", e)}
               />
               <InputRightElement mr={2}>

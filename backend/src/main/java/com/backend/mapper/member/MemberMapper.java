@@ -1,7 +1,7 @@
 package com.backend.mapper.member;
 
 import com.backend.domain.member.Member;
-import com.backend.domain.member.MemberSignupForm;
+import com.backend.domain.member.MemberForm;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -15,7 +15,7 @@ public interface MemberMapper {
             INSERT INTO member(nick_name, email, password) 
             VALUES (#{nickName}, #{email}, #{password})
             """)
-    void insert(MemberSignupForm member);
+    void insert(MemberForm member);
 
 
     @Select("""
@@ -43,5 +43,11 @@ public interface MemberMapper {
             """)
     List<String> selectAuthorityByMemberId(Integer memberId);
 
+
+    @Select("""
+            SELECT * FROM member
+            WHERE id= #{memberId}
+            """)
+    Member selectByMemberId(Integer memberId);
 
 }

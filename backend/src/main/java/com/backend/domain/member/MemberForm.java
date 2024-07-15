@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 @Data
-public class MemberSignupForm {
+public class MemberForm {
     private Integer id;
     @NotBlank
     @Pattern(regexp = "^[가-힣]{2,5}$", message = "한글사용, 최소 2자, 최대 5자 가능합니다.")

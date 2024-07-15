@@ -27,7 +27,7 @@ import { myToast } from "../App.jsx";
 
 export function MyModalBody({ editRow }) {
   const account = useContext(LoginContext);
-  const [axiosState, setAxiosState] = useState(false);
+  const [reload, setReload] = useState(false);
   const [files, setFiles] = useState([]);
   const navigate = useNavigate();
   const toast = useToast();
@@ -40,7 +40,7 @@ export function MyModalBody({ editRow }) {
     likeState: true,
     fileList: [],
   });
-  const [showAddFileBtn, setShowAddFileBtn] = useState(false);
+  const [showAddFileBtn, setShowAddFileBtn] = useState({});
   const [addFileRowId, setAddFileRowId] = useState(null);
 
   // file 목록 작성
@@ -86,7 +86,7 @@ export function MyModalBody({ editRow }) {
       })
       .then((res) => {
         myToast(toast, "입력완료 되었습니다.", "success");
-        setAxiosState(!axiosState);
+        setReload(!reload);
         setModalInputRow({
           id: "",
           boardId: editRow.id,
@@ -107,7 +107,7 @@ export function MyModalBody({ editRow }) {
       .delete("/api/board/modal/delete", { data: { id: modalRowId } })
       .then((res) => {
         myToast(toast, "삭제완료 되었습니다.", "success");
-        setAxiosState(!axiosState);
+        setReload(!reload);
       })
       .catch(() => {})
       .finally(() => {});
@@ -119,7 +119,7 @@ export function MyModalBody({ editRow }) {
       .put("/api/board/modal/update", updateRow)
       .then((res) => {
         myToast(toast, "수정완료 되었습니다.", "success");
-        setAxiosState(!axiosState);
+        setReload(!reload);
       })
       .catch(() => {})
       .finally(() => {});
@@ -134,7 +134,7 @@ export function MyModalBody({ editRow }) {
       })
       .catch(() => {})
       .finally(() => {});
-  }, [axiosState]);
+  }, [reload]);
 
   const handleImageClick = (src) => {
     window.open(src, "_blank", "noopener,noreferrer");
@@ -147,7 +147,7 @@ export function MyModalBody({ editRow }) {
       })
       .then((res) => {
         myToast(toast, "삭제 완료되었습니다", "success");
-        setAxiosState(!axiosState);
+        setReload(!reload);
       })
       .catch((err) => {
         myToast(toast, "삭제 실패", "error");
@@ -155,13 +155,27 @@ export function MyModalBody({ editRow }) {
   }
 
   /* todo: 개별파일 삭제 구현 */
-  function handleAddFile(rowId) {
-    setAddFileRowId(rowId);
-    setShowAddFileBtn(!showAddFileBtn);
-    axios.postForm("/api/board/modal/insert", {
-      rowId,
-      files,
-    });
+  function handleAddFileBtn(rowId) {
+    setShowAddFileBtn((prev) => ({
+      ...prev,
+      [rowId]: !prev[rowId],
+    }));
+  }
+
+  function handleInsertFile(e, rowId) {
+    axios
+      .postForm("/api/board/modal/insert-file", {
+        modalId: rowId,
+        files: e.target.files,
+      })
+      .then(() => {
+        myToast(toast, "추가 완료", "success");
+        setReload(!reload);
+        handleAddFileBtn(rowId);
+      })
+      .catch(() => {
+        myToast(toast, "추가 실패", "error");
+      });
   }
 
   return (
@@ -244,20 +258,24 @@ export function MyModalBody({ editRow }) {
                       </CardBody>
                     </Card>
                   ))}
-                <Button
-                  display={!showAddFileBtn ? "block" : "none"}
-                  colorScheme={"teal"}
-                  onClick={() => handleAddFile(row.id)}
-                >
-                  파일추가
-                </Button>
-                {row.fileList.length < 0 || (
-                  <Input
-                    display={showAddFileBtn ? "block" : "none"}
-                    type={"file"}
-                    colorScheme={"teal"}
-                    onChange={(e) => setFiles(e.target.files)}
-                  />
+                {row.fileList.length > 0 || (
+                  <Box>
+                    <Button
+                      display={!showAddFileBtn[row.id] ? "block" : "none"}
+                      colorScheme={"teal"}
+                      onClick={() => handleAddFileBtn(row.id)}
+                    >
+                      파일추가
+                    </Button>
+
+                    <Input
+                      display={showAddFileBtn[row.id] ? "block" : "none"}
+                      type={"file"}
+                      colorScheme={"teal"}
+                      lineHeight={"25px"}
+                      onChange={(e) => handleInsertFile(e, row.id)}
+                    />
+                  </Box>
                 )}
               </Td>
               <Td>

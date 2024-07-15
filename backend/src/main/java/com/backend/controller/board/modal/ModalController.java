@@ -3,6 +3,7 @@ package com.backend.controller.board.modal;
 import com.backend.domain.board.modal.Modal;
 import com.backend.service.board.modal.ModalService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -42,5 +43,10 @@ public class ModalController {
     @DeleteMapping("delete-img")
     public void deleteImage(@RequestParam String id, @RequestParam String fileName) {
         service.deleteImage(id, fileName);
+    }
+
+    @PostMapping("insert-file")
+    public ResponseEntity insertFile(@RequestParam Integer modalId, @RequestParam(value = "files[]", required = false) MultipartFile[] files) throws IOException {
+        return service.insertFile(modalId, files);
     }
 }

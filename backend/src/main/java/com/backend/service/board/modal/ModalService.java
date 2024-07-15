@@ -5,6 +5,7 @@ import com.backend.domain.board.modal.ModalFile;
 import com.backend.mapper.board.modal.ModalMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,23 +34,9 @@ public class ModalService {
     public void insert(Modal modal, MultipartFile[] files) throws IOException {
         modalMapper.insert(modal);
         // db 해당 게시물의 파일 목록 저장
-        if (files != null) {
-            for (MultipartFile file : files) {
-                modalMapper.insertFileName(modal.getId(), file.getOriginalFilename());
-                // 실제 파일 저장 (s3)
-                String key = STR."prj2/\{modal.getId()}/\{file.getOriginalFilename()}";
-                PutObjectRequest objectRequest = PutObjectRequest.builder()
-                        .bucket(bucketName)
-                        .key(key)
-                        .acl(ObjectCannedACL.PUBLIC_READ)
-                        .build();
-
-                s3Client.putObject(objectRequest,
-                        RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
-
-            }
-        }
+        insertModalFiles(modal.getId(), files);
     }
+
 
     public List<Modal> modalList(String boardId) {
         List<Modal> modalList = modalMapper.findAllModalList(boardId);
@@ -85,7 +72,6 @@ public class ModalService {
 
     public void update(Modal modal) {
         modalMapper.update(modal);
-
     }
 
     public void deleteByRowId(Integer rowId) {
@@ -106,5 +92,30 @@ public class ModalService {
         s3Client.deleteObject(objectRequest);
         modalMapper.deleteFileNameById(Integer.parseInt(id));
 
+    }
+
+    public ResponseEntity insertFile(Integer modalId, MultipartFile[] files) throws IOException {
+        insertModalFiles(modalId, files);
+        return ResponseEntity.ok().build();
+    }
+
+
+    // modal file 넣기 메소드 추출.
+    private void insertModalFiles(Integer modalId, MultipartFile[] files) throws IOException {
+        if (files != null && modalId != null) {
+            for (MultipartFile file : files) {
+                modalMapper.insertFileName(modalId, file.getOriginalFilename());
+                // 실제 파일 저장 (s3)
+                String key = STR."prj2/\{modalId}/\{file.getOriginalFilename()}";
+                PutObjectRequest objectRequest = PutObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(key)
+                        .acl(ObjectCannedACL.PUBLIC_READ)
+                        .build();
+
+                s3Client.putObject(objectRequest,
+                        RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
+            }
+        }
     }
 }

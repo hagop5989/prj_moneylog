@@ -1,7 +1,7 @@
 package com.backend.service.member;
 
 import com.backend.domain.member.Member;
-import com.backend.domain.member.MemberSignupForm;
+import com.backend.domain.member.MemberForm;
 import com.backend.mapper.member.MemberMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +27,7 @@ public class MemberService {
     private final JwtEncoder jwtEncoder;
 
 
-    public void insert(MemberSignupForm form) {
+    public void insert(MemberForm form) {
         form.setPassword(passwordEncoder.encode(form.getPassword())); // pw 인코딩
         form.setEmail(form.getEmail().trim());
         form.setNickName(form.getNickName().trim());
@@ -104,5 +104,10 @@ public class MemberService {
             return false;
         }
         return true;
+    }
+
+    public Member updateLoad(Integer memberId) {
+        return mapper.selectByMemberId(memberId);
+
     }
 }

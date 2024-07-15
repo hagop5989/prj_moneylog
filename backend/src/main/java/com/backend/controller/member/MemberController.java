@@ -1,7 +1,8 @@
 package com.backend.controller.member;
 
+import com.backend.config.AuthId;
 import com.backend.domain.member.Member;
-import com.backend.domain.member.MemberSignupForm;
+import com.backend.domain.member.MemberForm;
 import com.backend.service.member.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,9 +22,24 @@ public class MemberController {
 
     private final MemberService service;
 
+    @GetMapping(value = "signupCheck", params = "email")
+    public ResponseEntity signupEmailCheck(@Validated @ModelAttribute MemberForm form, BindingResult bindingResult) {
+        if (bindingResult.hasFieldErrors("email")) {
+            return ResponseEntity.badRequest().body(getErrorMessages(bindingResult, "email"));
+        }
+        return service.signupEmailCheck(form.getEmail());
+    }
+
+    @GetMapping(value = "signupCheck", params = "nickName")
+    public ResponseEntity signupNickNameCheck(@Validated @ModelAttribute MemberForm form, BindingResult bindingResult) {
+        if (bindingResult.hasFieldErrors("nickName")) {
+            return ResponseEntity.badRequest().body(getErrorMessages(bindingResult, "nickName"));
+        }
+        return service.signupNickNameCheck(form.getNickName());
+    }
 
     @PostMapping("signup")
-    public ResponseEntity signup(@Validated @RequestBody MemberSignupForm form, BindingResult bindingResult) {
+    public ResponseEntity signup(@Validated @RequestBody MemberForm form, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body(getErrorMessages(bindingResult));
         }
@@ -31,35 +47,27 @@ public class MemberController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping(value = "signupCheck", params = "email")
-    public ResponseEntity signupEmailCheck(@Validated @ModelAttribute MemberSignupForm form, BindingResult bindingResult) {
-        if (bindingResult.hasFieldErrors("email")) {
-            return ResponseEntity.badRequest().body(getErrorMessages(bindingResult, "email"));
-        }
-        return service.signupEmailCheck(form.getEmail());
-    }
-
-
-    @GetMapping(value = "signupCheck", params = "nickName")
-    public ResponseEntity signupNickNameCheck(@Validated @ModelAttribute MemberSignupForm form, BindingResult bindingResult) {
-        if (bindingResult.hasFieldErrors("nickName")) {
-            return ResponseEntity.badRequest().body(getErrorMessages(bindingResult, "nickName"));
-        }
-        return service.signupNickNameCheck(form.getNickName());
-    }
-
     @PostMapping("token")
     public ResponseEntity token(@RequestBody Member member) {
-        System.out.println("member = " + member);
         Map<String, Object> token = service.getToken(member);
-        System.out.println("service.getToken(member) = " + service.getToken(member));
         if (token == null) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         return ResponseEntity.ok(token);
     }
 
+    @GetMapping("update")
+    public Member updateLoad(@AuthId Integer memberId) {
+        return service.updateLoad(memberId);
+    }
 
+    @PutMapping("update")
+    public void update(@Validated @ModelAttribute MemberForm form) {
+
+    }
+
+
+    // 에러메세지 관련 메소드 들
     private static Map<String, String> getErrorMessages(BindingResult bindingResult) {
         return getErrorMessages(bindingResult, null);
     }
