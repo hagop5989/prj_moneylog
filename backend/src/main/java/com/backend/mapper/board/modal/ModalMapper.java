@@ -10,15 +10,16 @@ public interface ModalMapper {
 
 
     @Select("""
-            SELECT *
-            FROM modal
-            WHERE board_id = #{boardId}
+            SELECT m.*, mem.nick_name
+            FROM modal m JOIN member mem
+            ON mem.id = m.member_id
+            WHERE m.board_id = #{boardId}
             """)
     List<Modal> findAllModalList(String boardId);
 
     @Insert("""
-            INSERT INTO modal (nick_name, board_id, text,like_state)
-            VALUES (#{nickName},#{boardId},#{text},#{likeState});
+            INSERT INTO modal (board_id, member_id, text,like_state)
+            VALUES (#{boardId},#{memberId},#{text},#{likeState});
             """)
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insert(Modal modal);

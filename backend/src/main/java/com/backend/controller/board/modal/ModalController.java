@@ -1,5 +1,6 @@
 package com.backend.controller.board.modal;
 
+import com.backend.config.AuthId;
 import com.backend.domain.board.modal.Modal;
 import com.backend.service.board.modal.ModalService;
 import lombok.RequiredArgsConstructor;
@@ -25,9 +26,10 @@ public class ModalController {
 
     @PostMapping("insert")
     public void insert(@ModelAttribute Modal modal,
-                       @RequestParam(value = "files[]", required = false) MultipartFile[] files
+                       @RequestParam(value = "files[]", required = false) MultipartFile[] files,
+                       @AuthId Integer memberId
     ) throws IOException {
-        service.insert(modal, files);
+        service.insert(modal, files, memberId);
     }
 
     @DeleteMapping("delete")

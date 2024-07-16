@@ -110,4 +110,11 @@ public class MemberService {
         return mapper.selectByMemberId(memberId);
 
     }
+
+    public void update(MemberForm form, Integer memberId) {
+        form.setId(memberId);
+        form.setPassword(passwordEncoder.encode(form.getPassword())); // pw 인코딩
+        mapper.update(form);
+
+    }
 }

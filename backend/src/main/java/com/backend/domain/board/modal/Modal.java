@@ -7,8 +7,9 @@ import java.util.List;
 @Data
 public class Modal {
     private Integer id;
-    private String nickName;
     private Integer boardId;
+    private Integer memberId;
+    private String nickName;
     private String text;
 
     private boolean likeState;

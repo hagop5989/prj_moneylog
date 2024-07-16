@@ -62,8 +62,8 @@ public class MemberController {
     }
 
     @PutMapping("update")
-    public void update(@Validated @ModelAttribute MemberForm form) {
-
+    public void update(@Validated @RequestBody MemberForm form, @AuthId Integer memberId) {
+        service.update(form, memberId);
     }
 
 

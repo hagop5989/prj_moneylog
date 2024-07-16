@@ -59,7 +59,7 @@ function MemberEdit(props) {
 
   function handleEdit() {
     axios
-      .post("/api/member/update", newMember)
+      .put("/api/member/update", newMember)
       .then(() => {
         myToast(toast, "수정 완료되었습니다.", "success");
         navigate("/");

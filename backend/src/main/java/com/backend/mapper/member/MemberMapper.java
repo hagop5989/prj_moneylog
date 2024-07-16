@@ -5,6 +5,7 @@ import com.backend.domain.member.MemberForm;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -49,5 +50,12 @@ public interface MemberMapper {
             WHERE id= #{memberId}
             """)
     Member selectByMemberId(Integer memberId);
+
+    @Update("""
+            UPDATE member
+            SET nick_name=#{nickName}, password=#{password}
+            WHERE id = #{id}
+            """)
+    void update(MemberForm form);
 
 }

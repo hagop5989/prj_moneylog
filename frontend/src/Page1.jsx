@@ -39,8 +39,8 @@ export function Page1() {
         <Heading>준비중입니다</Heading>
         <Box>
           <Flex>
-            <MyBox1 text={"사장님"}></MyBox1>
-            <MyBox1 text={"알바님"}></MyBox1>
+            <MyBox1 text={"통장"}></MyBox1>
+            <MyBox1 text={"카드"}></MyBox1>
           </Flex>
         </Box>
         <Box>page</Box>

@@ -31,7 +31,8 @@ public class ModalService {
     @Value("${image.src.prefix}")
     String srcPrefix;
 
-    public void insert(Modal modal, MultipartFile[] files) throws IOException {
+    public void insert(Modal modal, MultipartFile[] files, Integer memberId) throws IOException {
+        modal.setMemberId(memberId);
         modalMapper.insert(modal);
         // db 해당 게시물의 파일 목록 저장
         insertModalFiles(modal.getId(), files);

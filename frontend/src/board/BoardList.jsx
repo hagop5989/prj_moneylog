@@ -261,7 +261,7 @@ function BoardList(props) {
               <Td>{(inputRow.income - inputRow.expense).toLocaleString()}</Td>
               <Td>
                 <MiniBoxGroup
-                  items={["급여", "여행", "간식", "식비", "예시1", "예시2"]}
+                  items={["수입", "식비", "교통", "주거", "생활", "여가"]}
                   clickedList={clickedList}
                   handleMiniBoxChange={handleMiniBoxChange}
                 />
@@ -385,7 +385,7 @@ const Row = ({
       <Td>{Number(editRow.income - editRow.expense).toLocaleString()}</Td>
       <Td>
         <MiniBoxGroup
-          items={["급여", "여행", "간식", "식비", "예시1", "예시2"]}
+          items={["수입", "식비", "교통", "주거", "생활", "여가"]}
           clickedList={editRow.categories}
           handleMiniBoxChange={handleCategoryChange}
         />

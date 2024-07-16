@@ -265,7 +265,7 @@ export function MyModalBody({ editRow }) {
                       colorScheme={"teal"}
                       onClick={() => handleAddFileBtn(row.id)}
                     >
-                      파일추가
+                      사진추가
                     </Button>
 
                     <Input
