@@ -73,4 +73,11 @@ public interface ModalMapper {
             """)
     List<Modal> selectByRowId(Integer rowId);
 
+
+    @Select("""
+            SELECT modal.id FROM modal
+            WHERE member_id = #{memberId}
+            """)
+    Integer[] selectByMemberId(Integer memberId);
+
 }

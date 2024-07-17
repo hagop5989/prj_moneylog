@@ -38,8 +38,8 @@ public class ModalController {
     }
 
     @PutMapping("update")
-    public void update(@RequestBody Modal modal) {
-        service.update(modal);
+    public ResponseEntity update(@RequestBody Modal modal, @AuthId Integer memberId) {
+        return service.update(modal, memberId);
     }
 
     @DeleteMapping("delete-img")

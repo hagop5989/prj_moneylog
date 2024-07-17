@@ -10,22 +10,22 @@ public interface BoardMapper {
 
     @Insert("""
             INSERT INTO board
-            (date, income, expense, categories, how,rowSum)
-            VALUES(#{board.date},
+            (member_id, date, income, expense, categories, how)
+            VALUES(
+                #{board.memberId},
+                #{board.date},
                  #{board.income},
                  #{board.expense},
                  #{categoriesToString},
-                 #{board.how},
-                 #{board.rowSum}
+                 #{board.how}
                  )
             """)
     int addRow(Board board, String categoriesToString);
 
     @Select("""
-            SELECT
-            id,date, income, expense, categories AS stringCategories, how , rowSum
-            FROM board
-            ORDER BY id DESC
+            SELECT b.*, b.categories AS stringCategories
+            FROM board b
+            ORDER BY date DESC
             """)
     List<Board> findAllBoardList();
 
@@ -42,8 +42,7 @@ public interface BoardMapper {
                 income=#{board.income},
                 expense=#{board.expense},
                 how=#{board.how},
-                categories = #{categoriesToString},
-                rowSum=#{board.rowSum}
+                categories = #{categoriesToString}
                 WHERE id=#{board.id}
             """)
     int updateRow(Board board, String categoriesToString);

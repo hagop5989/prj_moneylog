@@ -71,6 +71,7 @@ function BoardList(props) {
   const handleRowAdd = () => {
     const newRow = {
       ...inputRow,
+      memberId: account.id,
       categories: clickedList,
       rowSum: inputRow.income - inputRow.expense,
     };
@@ -309,7 +310,7 @@ const Row = ({
 }) => {
   const [editRow, setEditRow] = useState({ ...row });
   const { isOpen, onClose, onOpen } = useDisclosure();
-
+  const account = useContext(LoginContext);
   const handleEditChange = (field, value) => {
     setEditRow((prevRow) => ({
       ...prevRow,
@@ -341,7 +342,7 @@ const Row = ({
 
   return (
     <Tr
-      bgColor={row.id === maxId ? "rgba(70,50,17,0.06)" : ""}
+      // bgColor={row.id === maxId ? "rgba(70,50,17,0.06)" : ""}
       _hover={{ bgColor: "gray.50 " }}
     >
       <Td fontSize={"1.3rem"}>
@@ -396,30 +397,33 @@ const Row = ({
           onChange={(e) => handleEditChange("how", e.target.value)}
         />
       </Td>
-      <Td>
-        <Flex direction={"column"}>
-          <Button
-            colorScheme={"blue"}
-            m={"3px"}
-            onClick={() => handleRowUpdate(editRow)}
-          >
-            수정
-          </Button>
-          <Button
-            colorScheme={"red"}
-            m={"3px"}
-            onClick={() => handleRowDelete(row)}
-          >
-            삭제
-          </Button>
-          <Modal isOpen={isOpen} onClose={onClose} size="lg">
-            <ModalOverlay />
-            <ModalContent minW={"65%"} maxHeight="100%">
-              <MyModalBody editRow={editRow} />
-            </ModalContent>
-          </Modal>
-        </Flex>
-      </Td>
+
+      {editRow.memberId === parseInt(account.id) && (
+        <Td>
+          <Flex direction={"column"}>
+            <Button
+              colorScheme={"blue"}
+              m={"3px"}
+              onClick={() => handleRowUpdate(editRow)}
+            >
+              수정
+            </Button>
+            <Button
+              colorScheme={"red"}
+              m={"3px"}
+              onClick={() => handleRowDelete(row)}
+            >
+              삭제
+            </Button>
+            <Modal isOpen={isOpen} onClose={onClose} size="lg">
+              <ModalOverlay />
+              <ModalContent minW={"65%"} maxHeight="100%">
+                <MyModalBody editRow={editRow} />
+              </ModalContent>
+            </Modal>
+          </Flex>
+        </Td>
+      )}
     </Tr>
   );
 };

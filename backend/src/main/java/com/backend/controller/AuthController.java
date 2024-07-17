@@ -62,4 +62,8 @@ public class AuthController {
         scheduleRemoval(key, 2, TimeUnit.MINUTES);
     }
 
+    public boolean checkMemberId(String memberId) {
+        return false;
+    }
+
 }

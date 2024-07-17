@@ -16,6 +16,7 @@ import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -71,8 +72,16 @@ public class ModalService {
         }
     }
 
-    public void update(Modal modal) {
-        modalMapper.update(modal);
+    public ResponseEntity update(Modal modal, Integer memberId) {
+        Integer[] modalIds = modalMapper.selectByMemberId(memberId);
+        boolean idCheck = Arrays.stream(modalIds).anyMatch(id -> (modal.getId() == id));
+        if (idCheck) {
+            modalMapper.update(modal);
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.badRequest().body("memberId 불일치, 수정불가");
+        }
+
     }
 
     public void deleteByRowId(Integer rowId) {

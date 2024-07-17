@@ -11,9 +11,12 @@ import {
   ModalBody,
   ModalFooter,
   ModalHeader,
+  Table,
+  Tbody,
   Td,
   Textarea,
   Th,
+  Thead,
   Tr,
   useToast,
 } from "@chakra-ui/react";
@@ -130,7 +133,6 @@ export function MyModalBody({ editRow }) {
       .get(`/api/board/modal/list?boardId=${editRow.id}`)
       .then((res) => {
         setModalRows(res.data);
-        console.log(modalRows.fileList);
       })
       .catch(() => {})
       .finally(() => {});
@@ -154,7 +156,6 @@ export function MyModalBody({ editRow }) {
       });
   }
 
-  /* todo: 개별파일 삭제 구현 */
   function handleAddFileBtn(rowId) {
     setShowAddFileBtn((prev) => ({
       ...prev,
@@ -187,120 +188,124 @@ export function MyModalBody({ editRow }) {
           {editRow.expense.toLocaleString()} 합계 :{" "}
           {(editRow.income - editRow.expense).toLocaleString()} ]
         </Box>
-        <Tr>
-          <Th width="5%">#</Th>
-          <Th width="15%">작성자</Th>
-          <Th width="30%">의견</Th>
-          <Th width="10%">
-            <FontAwesomeIcon icon={faThumbsUp} />
-          </Th>
-          <Th width="30%">사진</Th>
-          <Th width="10%">입력</Th>
-        </Tr>
-        <>
-          {modalRows.map((row) => (
-            <Tr key={row.id}>
-              <Td>{row.id}</Td>
-              <Td
-                onChange={(e) =>
-                  handleRowChange(row.id, "nickName", e.target.value)
-                }
-              >
-                {row.nickName}
-              </Td>
-
-              <Td>
-                <Textarea
-                  mt={-5}
-                  w={280}
-                  value={row.text}
-                  onChange={(e) =>
-                    handleRowChange(row.id, "text", e.target.value)
-                  }
-                />
-              </Td>
-              <Td>
-                <Button mx={2} onClick={() => handleLikeToggle(row.id)}>
-                  {row.likeState === true && (
-                    <FontAwesomeIcon color={"blue"} icon={faThumbsUp} />
-                  )}
-                  {row.likeState === false && (
-                    <FontAwesomeIcon color={"red"} icon={faThumbsDown} />
-                  )}
-                </Button>
-              </Td>
-              <Td maxH="200px" overflow="auto" verticalAlign="top">
-                {row.fileList &&
-                  row.fileList.map((file) => (
-                    <Card key={file.name} m={2} maxH="190px">
-                      <CardBody
-                        height="100%"
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
-                      >
-                        <Image
-                          cursor="pointer"
-                          onClick={() => handleImageClick(file.src)}
-                          maxW="100%"
-                          maxH="100%"
-                          objectFit={"contain"}
-                          src={file.src}
-                        />
-                        <CloseButton
-                          onClick={() => handleDeleteImage(row.id, file.name)}
-                          position={"absolute"}
-                          right={"20px"}
-                          top={"10px"}
-                        >
-                          X
-                        </CloseButton>
-                      </CardBody>
-                    </Card>
-                  ))}
-                {row.fileList.length > 0 || (
-                  <Box>
-                    <Button
-                      display={!showAddFileBtn[row.id] ? "block" : "none"}
-                      colorScheme={"teal"}
-                      onClick={() => handleAddFileBtn(row.id)}
-                    >
-                      사진추가
-                    </Button>
-
-                    <Input
-                      display={showAddFileBtn[row.id] ? "block" : "none"}
-                      type={"file"}
-                      colorScheme={"teal"}
-                      lineHeight={"25px"}
-                      onChange={(e) => handleInsertFile(e, row.id)}
-                    />
-                  </Box>
-                )}
-              </Td>
-              <Td>
-                <Flex boxSize={"10%"} gap={2} fontWeight={"sm"}>
-                  <Button
-                    colorScheme={"blue"}
-                    onClick={() => {
-                      handleUpdateModal(row);
-                    }}
-                  >
-                    수정
-                  </Button>
-                  <Button
-                    colorScheme={"red"}
-                    onClick={() => {
-                      handleDeleteByModalId(row.id);
-                    }}
-                  >
-                    삭제
-                  </Button>
-                </Flex>
-              </Td>
+        <Table>
+          <Thead>
+            <Tr>
+              <Th width="5%">#</Th>
+              <Th width="15%">작성자</Th>
+              <Th width="30%">의견</Th>
+              <Th width="10%">
+                <FontAwesomeIcon icon={faThumbsUp} />
+              </Th>
+              <Th width="30%">사진</Th>
+              <Th width="10%">입력</Th>
             </Tr>
-          ))}
-        </>
+          </Thead>
+          <Tbody>
+            {modalRows.map((row) => (
+              <Tr key={row.id}>
+                <Td>{row.id}</Td>
+                <Td
+                  onChange={(e) =>
+                    handleRowChange(row.id, "nickName", e.target.value)
+                  }
+                >
+                  {row.nickName}
+                </Td>
+                <Td>
+                  <Textarea
+                    mt={-5}
+                    w={280}
+                    value={row.text}
+                    onChange={(e) =>
+                      handleRowChange(row.id, "text", e.target.value)
+                    }
+                  />
+                </Td>
+                <Td>
+                  <Button mx={2} onClick={() => handleLikeToggle(row.id)}>
+                    {row.likeState === true && (
+                      <FontAwesomeIcon color={"blue"} icon={faThumbsUp} />
+                    )}
+                    {row.likeState === false && (
+                      <FontAwesomeIcon color={"red"} icon={faThumbsDown} />
+                    )}
+                  </Button>
+                </Td>
+                <Td maxH="200px" overflow="auto" verticalAlign="top">
+                  {row.fileList &&
+                    row.fileList.map((file) => (
+                      <Card key={file.name} m={2} maxH="190px">
+                        <CardBody
+                          height="100%"
+                          display="flex"
+                          alignItems="center"
+                          justifyContent="center"
+                        >
+                          <Image
+                            cursor="pointer"
+                            onClick={() => handleImageClick(file.src)}
+                            maxW="100%"
+                            maxH="100%"
+                            objectFit={"contain"}
+                            src={file.src}
+                          />
+                          <CloseButton
+                            onClick={() => handleDeleteImage(row.id, file.name)}
+                            position={"absolute"}
+                            right={"20px"}
+                            top={"10px"}
+                          >
+                            X
+                          </CloseButton>
+                        </CardBody>
+                      </Card>
+                    ))}
+                  {row.fileList.length > 0 || (
+                    <Box>
+                      <Button
+                        display={!showAddFileBtn[row.id] ? "block" : "none"}
+                        colorScheme={"teal"}
+                        onClick={() => handleAddFileBtn(row.id)}
+                      >
+                        사진추가
+                      </Button>
+                      <Input
+                        display={showAddFileBtn[row.id] ? "block" : "none"}
+                        type={"file"}
+                        colorScheme={"teal"}
+                        lineHeight={"25px"}
+                        onChange={(e) => handleInsertFile(e, row.id)}
+                      />
+                    </Box>
+                  )}
+                </Td>
+                {row.memberId === parseInt(account.id) && (
+                  <Td>
+                    <Flex boxSize={"10%"} gap={2} fontWeight={"sm"}>
+                      <Button
+                        colorScheme={"blue"}
+                        onClick={() => {
+                          handleUpdateModal(row);
+                        }}
+                      >
+                        수정
+                      </Button>
+                      <Button
+                        colorScheme={"red"}
+                        onClick={() => {
+                          handleDeleteByModalId(row.id);
+                        }}
+                      >
+                        삭제
+                      </Button>
+                    </Flex>
+                  </Td>
+                )}
+              </Tr>
+            ))}
+          </Tbody>
+        </Table>
         <Box mt={2}>
           작성자 : {account.nickName}
           <Button
@@ -322,7 +327,6 @@ export function MyModalBody({ editRow }) {
           />
           <Input
             id="file-input"
-            // multiple
             type={"file"}
             onChange={(e) => {
               setFiles(e.target.files);

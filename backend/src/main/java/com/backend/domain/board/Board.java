@@ -19,8 +19,9 @@ public class Board {
 
     private String[] categories;
     private String stringCategories;
+    private Integer memberId;
 
-    public Board(Integer id, LocalDate date, Integer income, Integer expense, Integer rowSum, String how, String[] categories, String stringCategories) {
+    public Board(Integer id, LocalDate date, Integer income, Integer expense, Integer rowSum, String how, String[] categories, String stringCategories, Integer memberId) {
         this.id = id;
         this.date = date;
         this.income = income;
@@ -29,6 +30,7 @@ public class Board {
         this.how = how;
         this.categories = categories;
         this.stringCategories = stringCategories;
+        this.memberId = memberId;
     }
 
 }

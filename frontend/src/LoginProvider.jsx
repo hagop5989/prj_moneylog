@@ -4,7 +4,7 @@ import { jwtDecode } from "jwt-decode";
 export const LoginContext = createContext(null);
 
 export function LoginProvider({ children }) {
-  const [id, setId] = useState("");
+  const [id, setId] = useState(0);
   const [nickName, setNickName] = useState("");
   const [expired, setExpired] = useState(0);
   const [authority, setAuthority] = useState([]);
@@ -45,7 +45,7 @@ export function LoginProvider({ children }) {
   function logout() {
     localStorage.removeItem("token");
     setExpired(0);
-    setId("");
+    setId(0);
     setNickName("");
     setAuthority([]);
   }
