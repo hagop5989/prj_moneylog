@@ -300,16 +300,9 @@ function BoardList(props) {
   );
 }
 
-const Row = ({
-  row,
-  id,
-  maxId,
-  handleRowUpdate,
-  handleRowDelete,
-  MiniBoxGroup,
-}) => {
+const Row = ({ row, handleRowUpdate, handleRowDelete, MiniBoxGroup }) => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const [editRow, setEditRow] = useState({ ...row });
-  const { isOpen, onClose, onOpen } = useDisclosure();
   const account = useContext(LoginContext);
   const handleEditChange = (field, value) => {
     setEditRow((prevRow) => ({
@@ -398,8 +391,8 @@ const Row = ({
         />
       </Td>
 
-      {editRow.memberId === parseInt(account.id) && (
-        <Td>
+      <Td>
+        {editRow.memberId === parseInt(account.id) && (
           <Flex direction={"column"}>
             <Button
               colorScheme={"blue"}
@@ -415,15 +408,15 @@ const Row = ({
             >
               삭제
             </Button>
-            <Modal isOpen={isOpen} onClose={onClose} size="lg">
-              <ModalOverlay />
-              <ModalContent minW={"65%"} maxHeight="100%">
-                <MyModalBody editRow={editRow} />
-              </ModalContent>
-            </Modal>
           </Flex>
-        </Td>
-      )}
+        )}
+        <Modal isOpen={isOpen} onClose={onClose} size="lg">
+          <ModalOverlay />
+          <ModalContent minW={"65%"} maxHeight="100%">
+            <MyModalBody editRow={editRow} />
+          </ModalContent>
+        </Modal>
+      </Td>
     </Tr>
   );
 };

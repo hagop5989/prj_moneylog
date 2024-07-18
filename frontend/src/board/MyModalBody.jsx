@@ -32,7 +32,6 @@ export function MyModalBody({ editRow }) {
   const account = useContext(LoginContext);
   const [reload, setReload] = useState(false);
   const [files, setFiles] = useState([]);
-  const navigate = useNavigate();
   const toast = useToast();
   const [modalRows, setModalRows] = useState([]);
   const [modalInputRow, setModalInputRow] = useState({
@@ -44,7 +43,6 @@ export function MyModalBody({ editRow }) {
     fileList: [],
   });
   const [showAddFileBtn, setShowAddFileBtn] = useState({});
-  const [addFileRowId, setAddFileRowId] = useState(null);
 
   // file 목록 작성
   const fileNameList = [];
