@@ -2,14 +2,10 @@ import React, { useContext, useEffect, useState } from "react";
 import {
   Box,
   Button,
-  Center,
   Flex,
   Input,
   InputGroup,
   InputLeftAddon,
-  Modal,
-  ModalContent,
-  ModalOverlay,
   Table,
   Tbody,
   Td,
@@ -17,16 +13,14 @@ import {
   Th,
   Thead,
   Tr,
-  useDisclosure,
   useToast,
 } from "@chakra-ui/react";
 import { LoginContext } from "../LoginProvider.jsx";
 import { useNavigate } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faComments } from "@fortawesome/free-solid-svg-icons";
-import { myToast } from "../App.jsx";
-import { MyModalBody } from "./MyModalBody.jsx";
 import axios from "axios";
+import Row from "./Row.jsx";
+import { myToast } from "../App.jsx";
+import MiniBoxGroup from "./MiniBoxGroup.jsx";
 
 function BoardList(props) {
   const account = useContext(LoginContext);
@@ -38,7 +32,6 @@ function BoardList(props) {
     expense: 0,
     how: "",
     categories: [],
-    rowSum: 0,
   });
   const [dbRows, setDbRows] = useState([]);
   const [clickedList, setClickedList] = useState([]);
@@ -79,11 +72,7 @@ function BoardList(props) {
       .post("/api/board/addRow", newRow)
       .then((res) => {
         fetchBoardList();
-        toast({
-          description: "입력 완료 되었습니다!",
-          status: "success",
-          position: "top",
-        });
+        myToast(toast, "입력완료 되었습니다", "success");
       })
       .catch((e) => console.error({ e }))
       .finally(() => {
@@ -96,37 +85,6 @@ function BoardList(props) {
         });
         setClickedList([]);
       });
-  };
-
-  const handleRowUpdate = (row) => {
-    const updatedRow = { ...row };
-    axios
-      .put("/api/board/updateRow", updatedRow)
-      .then(() => {
-        fetchBoardList();
-        toast({
-          description: "수정 완료 되었습니다!",
-          status: "info",
-          position: "top",
-        });
-      })
-      .catch((e) => console.error(e));
-  };
-
-  const handleRowDelete = (row) => {
-    axios
-      .delete("/api/board/deleteRow", {
-        params: { rowId: row.id },
-      })
-      .then(() => {
-        fetchBoardList();
-        toast({
-          description: "삭제 완료 되었습니다!",
-          status: "error",
-          position: "top",
-        });
-      })
-      .catch((e) => console.error(e));
   };
 
   const handleInputChange = (field, value) => {
@@ -156,43 +114,9 @@ function BoardList(props) {
     });
   };
 
-  const MiniBox = ({ text, clickedList, handleMiniBoxChange }) => {
-    const isSelected = clickedList.includes(text);
-
-    return (
-      <Box
-        aria-valuetext={text}
-        onClick={() => handleMiniBoxChange(text)}
-        bgColor={isSelected ? "blue.100 " : ""}
-        boxSize={"50px"}
-        border={"2px solid gray"}
-        borderRadius={"5px"}
-        textAlign="center"
-        lineHeight={"50px"}
-        cursor={"pointer"}
-        margin={"2px"}
-      >
-        {text}
-      </Box>
-    );
-  };
-
-  const MiniBoxGroup = ({ items, clickedList, handleMiniBoxChange }) => {
-    return (
-      <Flex>
-        {items.map((item) => (
-          <MiniBox
-            key={item}
-            text={item}
-            clickedList={clickedList}
-            handleMiniBoxChange={handleMiniBoxChange}
-          />
-        ))}
-      </Flex>
-    );
-  };
   const maxId =
     dbRows.length > 0 ? Math.max(...dbRows.map((row) => row.id)) : 0;
+
   return (
     <Box>
       <Box>
@@ -288,9 +212,7 @@ function BoardList(props) {
                 id={row.id}
                 row={row}
                 maxId={maxId}
-                handleRowUpdate={handleRowUpdate}
-                handleRowDelete={handleRowDelete}
-                MiniBoxGroup={MiniBoxGroup}
+                fetchBoardList={fetchBoardList}
               />
             ))}
           </Tbody>
@@ -299,126 +221,5 @@ function BoardList(props) {
     </Box>
   );
 }
-
-const Row = ({ row, handleRowUpdate, handleRowDelete, MiniBoxGroup }) => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const [editRow, setEditRow] = useState({ ...row });
-  const account = useContext(LoginContext);
-  const handleEditChange = (field, value) => {
-    setEditRow((prevRow) => ({
-      ...prevRow,
-      [field]: value,
-    }));
-  };
-
-  const handleIncomeChange = (event) => {
-    const value = parseFloat(event.target.value.replace(/,/g, "")) || 0;
-    handleEditChange("income", value);
-  };
-
-  const handleExpenseChange = (event) => {
-    const value = parseFloat(event.target.value.replace(/,/g, "")) || 0;
-    handleEditChange("expense", value);
-  };
-
-  const handleCategoryChange = (text) => {
-    setEditRow((prevRow) => {
-      const newCategories = prevRow.categories.includes(text)
-        ? prevRow.categories.filter((category) => category !== text)
-        : [...prevRow.categories, text];
-      return {
-        ...prevRow,
-        categories: newCategories,
-      };
-    });
-  };
-
-  return (
-    <Tr
-      // bgColor={row.id === maxId ? "rgba(70,50,17,0.06)" : ""}
-      _hover={{ bgColor: "gray.50 " }}
-    >
-      <Td fontSize={"1.3rem"}>
-        <FontAwesomeIcon
-          icon={faComments}
-          cursor={"pointer"}
-          onClick={onOpen}
-        />
-      </Td>
-      <Td>
-        <Input
-          type={"date"}
-          value={editRow.date}
-          onChange={(e) => handleEditChange("date", e.target.value)}
-        />
-      </Td>
-      <Td>
-        <InputGroup>
-          <InputLeftAddon color="blue" children="+" />
-          <Input
-            type={"text"}
-            width={"150px"}
-            color={"blue"}
-            value={editRow.income.toLocaleString()}
-            onChange={handleIncomeChange}
-          />
-        </InputGroup>
-      </Td>
-      <Td>
-        <InputGroup>
-          <InputLeftAddon color={"red"} children="-" />
-          <Input
-            type={"text"}
-            width={"150px"}
-            color={"red"}
-            value={editRow.expense.toLocaleString()}
-            onChange={handleExpenseChange}
-          />
-        </InputGroup>
-      </Td>
-      <Td>{Number(editRow.income - editRow.expense).toLocaleString()}</Td>
-      <Td>
-        <MiniBoxGroup
-          items={["수입", "식비", "교통", "주거", "생활", "여가"]}
-          clickedList={editRow.categories}
-          handleMiniBoxChange={handleCategoryChange}
-        />
-      </Td>
-      <Td>
-        <Textarea
-          value={editRow.how}
-          onChange={(e) => handleEditChange("how", e.target.value)}
-        />
-      </Td>
-
-      <Td>
-        {editRow.memberId === parseInt(account.id) && (
-          <Flex direction={"column"}>
-            <Button
-              colorScheme={"blue"}
-              m={"3px"}
-              onClick={() => handleRowUpdate(editRow)}
-            >
-              수정
-            </Button>
-            <Button
-              colorScheme={"red"}
-              m={"3px"}
-              onClick={() => handleRowDelete(row)}
-            >
-              삭제
-            </Button>
-          </Flex>
-        )}
-        <Modal isOpen={isOpen} onClose={onClose} size="lg">
-          <ModalOverlay />
-          <ModalContent minW={"65%"} maxHeight="100%">
-            <MyModalBody editRow={editRow} />
-          </ModalContent>
-        </Modal>
-      </Td>
-    </Tr>
-  );
-};
 
 export default BoardList;
