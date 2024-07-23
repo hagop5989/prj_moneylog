@@ -212,7 +212,6 @@ export function MyModalBody({ editRow }) {
                 </Td>
                 <Td>
                   <Textarea
-                    mt={-5}
                     w={280}
                     value={row.text}
                     onChange={(e) =>

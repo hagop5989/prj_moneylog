@@ -21,16 +21,16 @@ public class Board {
     private String stringCategories;
     private Integer memberId;
 
-    public Board(Integer id, LocalDate date, Integer income, Integer expense, Integer rowSum, String how, String[] categories, String stringCategories, Integer memberId) {
-        this.id = id;
-        this.date = date;
-        this.income = income;
-        this.expense = expense;
-        this.rowSum = income - expense;
-        this.how = how;
-        this.categories = categories;
-        this.stringCategories = stringCategories;
-        this.memberId = memberId;
-    }
+//    public Board(Integer id, LocalDate date, Integer income, Integer expense, Integer rowSum, String how, String[] categories, String stringCategories, Integer memberId) {
+//        this.id = id;
+//        this.date = date;
+//        this.income = income;
+//        this.expense = expense;
+//        this.rowSum = income - expense;
+//        this.how = how;
+//        this.categories = categories;
+//        this.stringCategories = stringCategories;
+//        this.memberId = memberId;
+//    }
 
 }
