@@ -4,21 +4,16 @@ import { LoginContext } from "./LoginProvider.jsx";
 import { useNavigate } from "react-router-dom";
 import { myToast } from "./App.jsx";
 
-function MyBox1({ text }) {
-  return (
-    <Box
-      textAlign="center"
-      fontSize="3rem"
-      margin="30px"
-      borderRadius="md"
-      border="3px solid black"
-      boxSize={"300px"}
-      lineHeight={"300px"}
-    >
-      {text}
-    </Box>
-  );
-}
+const boxCss = () => ({
+  textAlign: "center",
+  fontSize: "3rem",
+  margin: "30px",
+  borderRadius: "md",
+  border: "3px solid black",
+  boxSize: "300px",
+  lineHeight: "300px",
+  _hover: { bgColor: "black", color: "white" },
+});
 
 export function Page1() {
   const account = useContext(LoginContext);
@@ -39,8 +34,20 @@ export function Page1() {
         <Heading>준비중입니다</Heading>
         <Box>
           <Flex>
-            <MyBox1 text={"통장"}></MyBox1>
-            <MyBox1 text={"카드"}></MyBox1>
+            <Box
+              {...boxCss()}
+              cursor={"pointer"}
+              onClick={() => navigate("/card-info")}
+            >
+              통장
+            </Box>
+            <Box
+              {...boxCss()}
+              cursor={"pointer"}
+              onClick={() => navigate("/account-info")}
+            >
+              카드
+            </Box>
           </Flex>
         </Box>
         <Box>page</Box>

@@ -192,6 +192,7 @@ export function MyModalBody({ editRow }) {
               <Th width="5%">#</Th>
               <Th width="15%">작성자</Th>
               <Th width="30%">의견</Th>
+              <Th width="30%">카드/계좌</Th>
               <Th width="10%">
                 <FontAwesomeIcon icon={faThumbsUp} />
               </Th>
@@ -219,6 +220,7 @@ export function MyModalBody({ editRow }) {
                     }
                   />
                 </Td>
+                <Td>신한,농협</Td>
                 <Td>
                   <Button mx={2} onClick={() => handleLikeToggle(row.id)}>
                     {row.likeState === true && (

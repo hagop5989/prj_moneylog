@@ -16,6 +16,8 @@ import AddressForm from "./board/AddressForm.jsx";
 import { faMoon, faSun } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import MemberEdit from "./member/MemberEdit.jsx";
+import AccountInfo from "./AccountInfo.jsx";
+import CardInfo from "./CardInfo.jsx";
 
 // axios interceptor 설정
 axios.interceptors.request.use((config) => {
@@ -66,6 +68,8 @@ const router = createBrowserRouter([
       { path: "login", element: <Login /> },
       { path: "member-edit", element: <MemberEdit /> },
       { path: "test", element: <AddressForm /> },
+      { path: "account-info", element: <AccountInfo /> },
+      { path: "card-info", element: <CardInfo /> },
     ],
   },
 ]);
