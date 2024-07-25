@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -14,17 +14,51 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Select,
   Table,
   Tbody,
   Td,
   Thead,
   Tr,
   useDisclosure,
+  useToast,
 } from "@chakra-ui/react";
-import { Label } from "recharts";
+import axios from "axios";
+import { myToast } from "./App.jsx";
 
 function CardInfo(props) {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [reload, setReload] = useState(false);
+  const paymentDayList = Array.from({ length: 31 }, (_, i) => `${i + 1}`);
+  const [input, setInput] = useState({ cardPaymentDay: "1" });
+  const [cardList, setCardList] = useState([]);
+  const toast = useToast();
+  const handleInputChange = (field) => (e) => {
+    setInput((prev) => ({
+      ...prev,
+      [field]: e.target.value,
+    }));
+  };
+
+  function handleInputSubmit() {
+    console.log("clicked!");
+    axios
+      .post("api/card", input)
+      .then(() => {
+        myToast(toast, "저장 되었습니다", "success");
+        onClose();
+        setReload(!reload);
+      })
+      .catch()
+      .finally();
+  }
+
+  useEffect(() => {
+    axios.get("/api/card").then((res) => {
+      setCardList(res.data);
+    });
+  }, [reload]);
+
   return (
     <Box>
       <Heading>card Info</Heading>
@@ -45,23 +79,21 @@ function CardInfo(props) {
           </Tr>
         </Thead>
         <Tbody>
+          {cardList.map((card) => (
+            <Tr key={card.id}>
+              <Td>
+                <Checkbox ml={10} mt={5} />
+              </Td>
+              <Td>로고</Td>
+              <Td>{card.bank}</Td>
+              <Td>{card.cardLimit}</Td>
+              <Td>{card.cardName}</Td>
+              <Td>{card.cardPaymentDay}일</Td>
+              <Td>{card.etcInfo}</Td>
+            </Tr>
+          ))}
           <Tr>
-            <Checkbox ml={10} mt={5} />
-            <Td>로고</Td>
-            <Td>우리은행</Td>
-            <Td>카드의 정석 V1</Td>
-            <Td>100만원</Td>
-            <Td>매달 1일</Td>
-            <Td>기타정보</Td>
-          </Tr>
-          <Tr>
-            <Checkbox ml={10} mt={5} />
-            <Td>로고</Td>
-            <Td>신한은행</Td>
-            <Td>청년지원카드</Td>
-            <Td>50만원</Td>
-            <Td>매달 15일</Td>
-            <Td>기타정보2</Td>
+            <Td></Td>
           </Tr>
         </Tbody>
       </Table>
@@ -75,19 +107,27 @@ function CardInfo(props) {
             <ModalBody>
               <Flex flexDirection={"column"} gap={"10px"}>
                 은행
-                <Input />
+                <Input onChange={handleInputChange("bank")} />
                 카드이름
-                <Input />
+                <Input onChange={handleInputChange("cardName")} />
                 한도
-                <Input />
+                <Input onChange={handleInputChange("cardLimit")} />
                 결제일
-                <Input />
+                <Select onChange={handleInputChange("cardPaymentDay")}>
+                  {paymentDayList.map((item, index) => (
+                    <option key={index} value={item}>
+                      {item}일
+                    </option>
+                  ))}
+                </Select>
                 기타정보
-                <Input />
+                <Input onChange={handleInputChange("etcInfo")} />
               </Flex>
             </ModalBody>
             <ModalFooter>
-              <Button colorScheme={"teal"}>저장</Button>
+              <Button colorScheme={"teal"} onClick={handleInputSubmit}>
+                저장
+              </Button>
             </ModalFooter>
           </ModalContent>
         </ModalOverlay>
