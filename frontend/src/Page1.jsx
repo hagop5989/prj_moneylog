@@ -39,14 +39,14 @@ export function Page1() {
               cursor={"pointer"}
               onClick={() => navigate("/card-info")}
             >
-              통장
+              카드
             </Box>
             <Box
               {...boxCss()}
               cursor={"pointer"}
               onClick={() => navigate("/account-info")}
             >
-              카드
+              통장
             </Box>
           </Flex>
         </Box>
