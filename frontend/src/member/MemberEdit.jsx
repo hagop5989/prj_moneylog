@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -20,8 +20,10 @@ import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { myToast } from "../App.jsx";
+import { LoginContext } from "../LoginProvider.jsx";
 
 function MemberEdit(props) {
+  const account = useContext(LoginContext);
   const [newMember, setNewMember] = useState({
     nickName: "",
     password: "",
@@ -33,7 +35,7 @@ function MemberEdit(props) {
   const handlePwdClick = () => setPwdShow(!pwdShow);
   const navigate = useNavigate();
   const [pwdShow, setPwdShow] = useState(false);
-  let toast = useToast();
+  const toast = useToast();
   function handleSetMember(field, e) {
     setNewMember((member) => ({
       ...member,
@@ -50,7 +52,7 @@ function MemberEdit(props) {
       })
       .catch((err) => {
         if (err.response.status === 400) {
-          myToast(err.response.data.nickName, "error");
+          myToast(toast, err.response.data.nickName, "error");
           setNickNameCheck(false);
         }
       })
@@ -63,14 +65,11 @@ function MemberEdit(props) {
       .then(() => {
         myToast(toast, "수정 완료되었습니다.", "success");
         navigate("/");
+        account.setNickName(newMember.nickName);
       })
       .catch((e) => {
-        if (e.response.status === 400) {
-          if (e.response.data.password) {
-            myToast(toast, e.response.data.password, "error");
-          } else {
-            myToast(toast, "입력 값을 다시 확인해주세요", "error");
-          }
+        if (e.error.response.status === 400) {
+          myToast(toast, e.response.data, "error");
         }
       })
       .finally(() => {
@@ -105,6 +104,7 @@ function MemberEdit(props) {
             <FormLabel>이름(닉네임)</FormLabel>
             <InputGroup>
               <Input
+                id="nickname-input"
                 placeholder={"한글 사용, 최소 2자, 최대 5자 가능합니다."}
                 value={newMember.nickName}
                 onChange={(e) => {
@@ -126,6 +126,7 @@ function MemberEdit(props) {
             비밀번호
             <InputGroup>
               <Input
+                id="password-input"
                 type={pwdShow ? "text" : "password"}
                 defaultValue={""}
                 onChange={(e) => handleSetMember("password", e)}

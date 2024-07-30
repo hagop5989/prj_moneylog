@@ -7,13 +7,19 @@ import { LoginContext } from "../LoginProvider.jsx";
 import { myToast } from "../App.jsx";
 
 function Navbar(props) {
+  const { isLoggedIn, nickName, logout } = useContext(LoginContext);
   const account = useContext(LoginContext);
   const navigate = useNavigate();
   const [showBoxes, setShowBoxes] = useState(true);
   const toast = useToast();
+
   useEffect(() => {
     setShowBoxes(account.isLoggedIn());
-  }, [account]);
+  }, [account.isLoggedIn]);
+
+  useEffect(() => {
+    console.log("Nickname in Navbar:", nickName);
+  }, [nickName]);
 
   const navCss = {
     fontSize: "1.5rem",
@@ -44,7 +50,7 @@ function Navbar(props) {
               <Spacer w={1000} />
               <Box {...navCss} onClick={() => navigate("/member-edit")}>
                 {account.nickName}
-                <FontAwesomeIcon icon={faUser} />
+                <FontAwesomeIcon icon={faUser} /> 님
               </Box>
               <Box onClick={() => navigate("/analysis")} {...navCss}>
                 통계보기
@@ -95,4 +101,4 @@ function Navbar(props) {
   );
 }
 
-export default Navbar;
+export default React.memo(Navbar);

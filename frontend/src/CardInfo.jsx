@@ -165,7 +165,12 @@ function CardInfo(props) {
         </Thead>
         <Tbody>
           {cardList.map((card) => (
-            <Tr key={card.id} onClick={() => handleCardEdit(card.id)}>
+            <Tr
+              cursor={"pointer"}
+              key={card.id}
+              onClick={() => handleCardEdit(card.id)}
+              _hover={{ bgColor: "gray.50" }}
+            >
               <Td>
                 <Checkbox
                   value={card.id}
@@ -192,14 +197,14 @@ function CardInfo(props) {
         <ModalOverlay>
           <ModalContent>
             <ModalHeader>
-              OOOO 카드
+              {editCard?.cardName} 카드
               <ModalCloseButton />
             </ModalHeader>
             <ModalBody>
               <Flex flexDirection={"column"} gap={"10px"}>
                 은행
                 <Input
-                  value={editCard ? editCard.bank : ""}
+                  value={editCard ? editCard.bank : input.bank}
                   onChange={handleInputChange("bank")}
                 />
                 로고(필수아님)
@@ -220,18 +225,20 @@ function CardInfo(props) {
                 )}
                 카드이름
                 <Input
-                  value={editCard ? editCard.cardName : ""}
+                  value={editCard ? editCard.cardName : input.cardName}
                   onChange={handleInputChange("cardName")}
                 />
                 한도
                 <Input
                   type="number"
-                  value={editCard ? editCard.cardLimit : ""}
+                  value={editCard ? editCard.cardLimit : input.cardLimit}
                   onChange={handleInputChange("cardLimit")}
                 />
                 결제일
                 <Select
-                  value={editCard ? editCard.cardPaymentDay : ""}
+                  value={
+                    editCard ? editCard.cardPaymentDay : input.cardPaymentDay
+                  }
                   onChange={handleInputChange("cardPaymentDay")}
                 >
                   {paymentDayList.map((item, index) => (
@@ -242,7 +249,7 @@ function CardInfo(props) {
                 </Select>
                 기타정보
                 <Input
-                  value={editCard ? editCard.etcInfo : ""}
+                  value={editCard ? editCard.etcInfo : input.etcInfo}
                   onChange={handleInputChange("etcInfo")}
                 />
               </Flex>

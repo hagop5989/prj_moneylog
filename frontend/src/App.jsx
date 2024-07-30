@@ -109,9 +109,10 @@ export default App;
 
 export function myToast(toast, text, status) {
   toast({
-    description: <Box whiteSpace="pre-line">{text}</Box>,
+    description: text,
     status: status,
     position: "top",
-    duration: "700",
+    duration: 3000,
+    isClosable: true,
   });
 }

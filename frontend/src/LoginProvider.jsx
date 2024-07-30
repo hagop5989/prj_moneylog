@@ -55,6 +55,7 @@ export function LoginProvider({ children }) {
       value={{
         id,
         nickName,
+        setNickName,
         login,
         logout,
         isLoggedIn,
