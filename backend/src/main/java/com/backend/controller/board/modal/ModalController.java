@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,9 +19,8 @@ public class ModalController {
 
 
     @GetMapping("list")
-    public List<Modal> modalList(@RequestParam String boardId) {
-        List<Modal> modalList = service.modalList(boardId);
-        return modalList;
+    public Map<String, Object> modalList(@RequestParam String boardId, @AuthId Integer memberId) {
+        return service.modalList(boardId, memberId);
     }
 
     @PostMapping("insert")

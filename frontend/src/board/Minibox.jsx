@@ -1,7 +1,12 @@
 import React from "react";
 import { Box, Input, Select } from "@chakra-ui/react";
 
-const MiniBox = ({ text, clickedList, handleMiniBoxChange }) => {
+const MiniBox = ({
+  text,
+  clickedList,
+  handleMiniBoxChange,
+  borderColor = "gray",
+}) => {
   const isSelected = clickedList.includes(text);
 
   return (
@@ -12,7 +17,9 @@ const MiniBox = ({ text, clickedList, handleMiniBoxChange }) => {
         bgColor={isSelected ? "blue.100 " : ""}
         boxSize={"50px"}
         lineHeight={"50px"}
-        border={"2px solid gray"}
+        // border={"2px solid gray"}
+        borderWidth={"2px"}
+        borderColor={borderColor}
         borderRadius={"5px"}
         textAlign="center"
         cursor={"pointer"}

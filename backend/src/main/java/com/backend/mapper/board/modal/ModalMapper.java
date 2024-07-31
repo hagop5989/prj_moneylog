@@ -11,8 +11,8 @@ public interface ModalMapper {
 
     @Select("""
             SELECT m.*, mem.nick_name
-            FROM modal m JOIN member mem
-            ON mem.id = m.member_id
+            FROM modal m 
+            JOIN member mem ON mem.id = m.member_id
             WHERE m.board_id = #{boardId}
             """)
     List<Modal> findAllModalList(String boardId);

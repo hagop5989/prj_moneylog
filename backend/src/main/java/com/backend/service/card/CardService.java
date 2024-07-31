@@ -28,7 +28,6 @@ public class CardService {
     }
 
     public void delete(List<Integer> cardIds) {
-        System.out.println("CardService.delete");
         cardIds.forEach((id) -> {
                     if (selectByCardId(id) != null) {
                         mapper.delete(id);

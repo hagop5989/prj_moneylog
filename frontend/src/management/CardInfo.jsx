@@ -5,6 +5,7 @@ import {
   Center,
   Checkbox,
   Flex,
+  FormHelperText,
   Heading,
   Image,
   Input,
@@ -19,25 +20,26 @@ import {
   Table,
   Tbody,
   Td,
+  Text,
   Thead,
   Tr,
   useDisclosure,
   useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
-import { myToast } from "./App.jsx";
+import { myToast } from "../App.jsx";
 
-function AccountInfo(props) {
+function CardInfo(props) {
   const { isOpen, onOpen, onClose: originalOnClose } = useDisclosure();
   const [reload, setReload] = useState(false);
   const paymentDayList = Array.from({ length: 31 }, (_, i) => `${i + 1}`);
   const [input, setInput] = useState({ cardPaymentDay: "1" });
-  const [accountList, setAccountList] = useState([]);
-  const [deleteList, setDeleteList] = useState([]);
-  const [editAccount, setEditAccount] = useState();
-  const [editing, setEditing] = useState(false);
+  const [cardList, setCardList] = useState([]);
+  const [editCard, setEditCard] = useState();
   const [image, setImage] = useState();
+  const [deleteList, setDeleteList] = useState([]);
   const [previewImage, setPreviewImage] = useState();
+  const [editing, setEditing] = useState(false);
   const toast = useToast();
 
   const handleInputChange = (field) => (e) => {
@@ -47,7 +49,7 @@ function AccountInfo(props) {
         [field]: e.target.value,
       }));
     } else if (editing) {
-      setEditAccount((prev) => ({
+      setEditCard((prev) => ({
         ...prev,
         [field]: e.target.value,
       }));
@@ -55,7 +57,7 @@ function AccountInfo(props) {
   };
 
   const resetModalState = () => {
-    setEditAccount(null);
+    setEditCard(null);
     setEditing(false);
     setInput({ cardPaymentDay: "1" });
     setImage(null);
@@ -79,8 +81,13 @@ function AccountInfo(props) {
 
   function handleInputSubmit() {
     if (!editing) {
+      if (cardList.length >= 5) {
+        alert("5개 이상 생성 불가합니다.");
+        onClose();
+        return;
+      }
       axios
-        .postForm("api/account", { ...input, files: image })
+        .postForm("api/card", { ...input, files: image })
         .then(() => {
           myToast(toast, "저장 되었습니다", "success");
           closeAndLoad();
@@ -88,7 +95,7 @@ function AccountInfo(props) {
         .catch()
         .finally();
     } else if (editing) {
-      axios.put("/api/account", { ...editAccount }).then(() => {
+      axios.put("/api/card", { ...editCard }).then(() => {
         myToast(toast, "수정 되었습니다", "success");
         closeEdit();
       });
@@ -108,8 +115,8 @@ function AccountInfo(props) {
   };
 
   useEffect(() => {
-    axios.get("/api/account").then((res) => {
-      setAccountList(res.data);
+    axios.get("/api/card").then((res) => {
+      setCardList(res.data);
     });
   }, [reload]);
 
@@ -124,7 +131,7 @@ function AccountInfo(props) {
 
   function handleDeleteSubmit() {
     axios
-      .post("/api/account/delete", deleteList)
+      .post("/api/card/delete", deleteList)
       .then(() => {
         myToast(toast, "삭제 되었습니다.", "success");
         setReload(!reload);
@@ -136,15 +143,16 @@ function AccountInfo(props) {
 
   function handleCardEdit(cardId) {
     setEditing(true);
-    axios.get("/api/account/select", { params: { cardId } }).then((res) => {
-      setEditAccount(res.data);
+    axios.get("/api/card/select", { params: { cardId } }).then((res) => {
+      setEditCard(res.data);
     });
     onOpen();
   }
 
   return (
     <Box>
-      <Heading>통장 관리</Heading>
+      <Heading>카드 관리</Heading>
+      <Text>총 5개 까지 입력 가능합니다.</Text>
       <Button colorScheme={"teal"} onClick={onOpen}>
         입력
       </Button>
@@ -157,15 +165,21 @@ function AccountInfo(props) {
             <Td>선택</Td>
             <Td>로고</Td>
             <Td>은행</Td>
-            <Td>통장이름</Td>
-            <Td>잔액</Td>
+            <Td>카드이름</Td>
+            <Td>카드한도</Td>
+            <Td>결제일</Td>
             <Td>기타</Td>
           </Tr>
         </Thead>
         <Tbody>
-          {accountList.map((card) => (
-            <Tr key={card.id} onClick={() => handleCardEdit(card.id)}>
-              <Td>
+          {cardList.map((card) => (
+            <Tr
+              cursor={"pointer"}
+              key={card.id}
+              onClick={() => handleCardEdit(card.id)}
+              _hover={{ bgColor: "gray.50" }}
+            >
+              <Td onClick={(e) => e.stopPropagation()}>
                 <Checkbox
                   value={card.id}
                   ml={1}
@@ -178,26 +192,24 @@ function AccountInfo(props) {
               <Td>{card.bank}</Td>
               <Td>{card.cardName}</Td>
               <Td>{card.cardLimit.toLocaleString()} 원</Td>
+              <Td>{card.cardPaymentDay}일</Td>
               <Td>{card.etcInfo}</Td>
             </Tr>
           ))}
-          <Tr>
-            <Td></Td>
-          </Tr>
         </Tbody>
       </Table>
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay>
           <ModalContent>
             <ModalHeader>
-              통장 입력 및 수정
+              {editCard?.cardName} 카드
               <ModalCloseButton />
             </ModalHeader>
             <ModalBody>
               <Flex flexDirection={"column"} gap={"10px"}>
                 은행
                 <Input
-                  value={editAccount ? editAccount.bank : ""}
+                  value={editCard ? editCard.bank : input.bank}
                   onChange={handleInputChange("bank")}
                 />
                 로고(필수아님)
@@ -216,20 +228,33 @@ function AccountInfo(props) {
                     />
                   </Box>
                 )}
-                통장이름
+                카드이름
                 <Input
-                  value={editAccount ? editAccount.cardName : ""}
+                  value={editCard ? editCard.cardName : input.cardName}
                   onChange={handleInputChange("cardName")}
                 />
-                잔액
+                한도
                 <Input
                   type="number"
-                  value={editAccount ? editAccount.cardLimit : ""}
+                  value={editCard ? editCard.cardLimit : input.cardLimit}
                   onChange={handleInputChange("cardLimit")}
                 />
+                결제일
+                <Select
+                  value={
+                    editCard ? editCard.cardPaymentDay : input.cardPaymentDay
+                  }
+                  onChange={handleInputChange("cardPaymentDay")}
+                >
+                  {paymentDayList.map((item, index) => (
+                    <option key={index} value={item}>
+                      {item}일
+                    </option>
+                  ))}
+                </Select>
                 기타정보
                 <Input
-                  value={editAccount ? editAccount.etcInfo : ""}
+                  value={editCard ? editCard.etcInfo : input.etcInfo}
                   onChange={handleInputChange("etcInfo")}
                 />
               </Flex>
@@ -246,4 +271,4 @@ function AccountInfo(props) {
   );
 }
 
-export default AccountInfo;
+export default CardInfo;

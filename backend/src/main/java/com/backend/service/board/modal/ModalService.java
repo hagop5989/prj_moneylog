@@ -1,8 +1,12 @@
 package com.backend.service.board.modal;
 
+import com.backend.domain.account.Account;
 import com.backend.domain.board.modal.Modal;
 import com.backend.domain.board.modal.ModalFile;
+import com.backend.domain.card.Card;
 import com.backend.mapper.board.modal.ModalMapper;
+import com.backend.service.account.AccountService;
+import com.backend.service.card.CardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -18,12 +22,15 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
 @RequiredArgsConstructor
 public class ModalService {
     private final ModalMapper modalMapper;
+    private final AccountService accountService;
+    private final CardService cardService;
     final S3Client s3Client;
 
     @Value("${aws.s3.bucket.name}")
@@ -40,17 +47,14 @@ public class ModalService {
     }
 
 
-    public List<Modal> modalList(String boardId) {
+    public Map<String, Object> modalList(String boardId, Integer memberId) {
         List<Modal> modalList = modalMapper.findAllModalList(boardId);
-        for (Modal modal : modalList) {
-            List<String> fileNames = modalMapper.selectFileNameByModalId(modal.getId());
-            List<ModalFile> files = fileNames.stream()
-                    .map(name -> new ModalFile(name, STR."\{srcPrefix}\{modal.getId()}/\{name}"))
-                    .toList();
-            modal.setFileList(files);
-        }
-        return modalList;
+        List<Account> accountList = accountService.list(memberId);
+        List<Card> cardList = cardService.list(memberId);
+        setModalFileList(modalList);
+        return Map.of("modalList", modalList, "accountList", accountList, "cardList", cardList);
     }
+
 
     public void delete(Modal modal) {
         Modal dbModal = modalMapper.selectByModalId(modal.getId());
@@ -85,11 +89,9 @@ public class ModalService {
     }
 
     public void deleteByRowId(Integer rowId) {
-        List<Modal> modals = modalMapper.selectByRowId(rowId);
+        modalMapper.selectByRowId(rowId).forEach(this::delete);
         // RowId 기준으로 모달을 찾아와서 삭제.
-        for (Modal modal : modals) {
-            delete(modal);
-        }
+
     }
 
     public void deleteImage(String id, String fileName) {
@@ -110,7 +112,7 @@ public class ModalService {
     }
 
 
-    // modal file 넣기 메소드 추출.
+    // modal file 저장(db,s3) 메소드 추출.
     private void insertModalFiles(Integer modalId, MultipartFile[] files) throws IOException {
         if (files != null && modalId != null) {
             for (MultipartFile file : files) {
@@ -126,6 +128,17 @@ public class ModalService {
                 s3Client.putObject(objectRequest,
                         RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
             }
+        }
+    }
+
+    // modalList 에 file 넣기.
+    private void setModalFileList(List<Modal> modalList) {
+        for (Modal modal : modalList) {
+            List<String> fileNames = modalMapper.selectFileNameByModalId(modal.getId());
+            List<ModalFile> files = fileNames.stream()
+                    .map(name -> new ModalFile(name, STR."\{srcPrefix}\{modal.getId()}/\{name}"))
+                    .toList();
+            modal.setFileList(files);
         }
     }
 }

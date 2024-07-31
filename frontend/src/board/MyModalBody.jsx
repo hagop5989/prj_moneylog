@@ -27,12 +27,25 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { LoginContext } from "../LoginProvider.jsx";
 import { myToast } from "../App.jsx";
+import {
+  faCreditCard,
+  faPiggyBank,
+  faSackDollar,
+  faTrashCan,
+  faWallet,
+  faWrench,
+} from "@fortawesome/free-solid-svg-icons";
+import MiniBox from "./Minibox.jsx";
 
 export function MyModalBody({ editRow }) {
   const account = useContext(LoginContext);
   const [reload, setReload] = useState(false);
-  const [files, setFiles] = useState([]);
   const toast = useToast();
+
+  const [clickedList, setClickedList] = useState([]);
+  const [files, setFiles] = useState([]);
+  const [accountList, setAccountList] = useState([]);
+  const [cardList, setCardList] = useState([]);
   const [modalRows, setModalRows] = useState([]);
   const [modalInputRow, setModalInputRow] = useState({
     modalId: "",
@@ -103,6 +116,13 @@ export function MyModalBody({ editRow }) {
       .finally(() => {});
   }
 
+  const handleModalAccountChange = (text, row) => {
+    setClickedList((prev) => ({
+      ...prev,
+      text,
+    }));
+  };
+
   function handleDeleteByModalId(modalRowId) {
     axios
       .delete("/api/board/modal/delete", { data: { id: modalRowId } })
@@ -114,8 +134,8 @@ export function MyModalBody({ editRow }) {
       .finally(() => {});
   }
 
-  function handleUpdateModal(dbRow) {
-    const updateRow = { ...dbRow };
+  function handleUpdateModal(row) {
+    const updateRow = { ...row };
     axios
       .put("/api/board/modal/update", updateRow)
       .then((res) => {
@@ -130,7 +150,9 @@ export function MyModalBody({ editRow }) {
     axios
       .get(`/api/board/modal/list?boardId=${editRow.id}`)
       .then((res) => {
-        setModalRows(res.data);
+        setModalRows(res.data.modalList);
+        setAccountList(res.data.accountList);
+        setCardList(res.data.cardList);
       })
       .catch(() => {})
       .finally(() => {});
@@ -220,7 +242,39 @@ export function MyModalBody({ editRow }) {
                     }
                   />
                 </Td>
-                <Td>신한,농협</Td>
+                <Td>
+                  <Flex alignItems="center">
+                    <Box w={"20px"} fontSize={"xl"} mr={2}>
+                      <FontAwesomeIcon icon={faSackDollar} />
+                    </Box>
+                    {accountList.map((account) => (
+                      <MiniBox
+                        border={"1px solid red"}
+                        key={account.id}
+                        text={account.bank.slice(0, 2)}
+                        clickedList={clickedList}
+                        handleMiniBoxChange={() =>
+                          handleModalAccountChange(account.bank, row)
+                        }
+                      />
+                    ))}
+                  </Flex>
+                  <Flex alignItems="center" w={"100%"}>
+                    <Box w={"20px"} fontSize={"xl"} mr={2}>
+                      <FontAwesomeIcon icon={faCreditCard} />
+                    </Box>
+                    {cardList.map((card) => (
+                      <MiniBox
+                        key={card.id}
+                        text={card.bank.slice(0, 2)}
+                        clickedList={clickedList}
+                        handleMiniBoxChange={() =>
+                          handleModalAccountChange(card.bank, row)
+                        }
+                      />
+                    ))}
+                  </Flex>
+                </Td>
                 <Td>
                   <Button mx={2} onClick={() => handleLikeToggle(row.id)}>
                     {row.likeState === true && (
@@ -264,7 +318,7 @@ export function MyModalBody({ editRow }) {
                     <Box>
                       <Button
                         display={!showAddFileBtn[row.id] ? "block" : "none"}
-                        colorScheme={"teal"}
+                        colorScheme={"blue"}
                         onClick={() => handleAddFileBtn(row.id)}
                       >
                         사진추가
@@ -272,7 +326,7 @@ export function MyModalBody({ editRow }) {
                       <Input
                         display={showAddFileBtn[row.id] ? "block" : "none"}
                         type={"file"}
-                        colorScheme={"teal"}
+                        colorScheme={"blue"}
                         lineHeight={"25px"}
                         onChange={(e) => handleInsertFile(e, row.id)}
                       />
@@ -281,14 +335,19 @@ export function MyModalBody({ editRow }) {
                 </Td>
                 {row.memberId === parseInt(account.id) && (
                   <Td>
-                    <Flex boxSize={"10%"} gap={2} fontWeight={"sm"}>
+                    <Flex
+                      boxSize={"10%"}
+                      gap={2}
+                      fontWeight={"sm"}
+                      flexDirection={"column"}
+                    >
                       <Button
-                        colorScheme={"blue"}
+                        colorScheme={"teal"}
                         onClick={() => {
                           handleUpdateModal(row);
                         }}
                       >
-                        수정
+                        <FontAwesomeIcon icon={faWrench} />
                       </Button>
                       <Button
                         colorScheme={"red"}
@@ -296,7 +355,7 @@ export function MyModalBody({ editRow }) {
                           handleDeleteByModalId(row.id);
                         }}
                       >
-                        삭제
+                        <FontAwesomeIcon icon={faTrashCan} />
                       </Button>
                     </Flex>
                   </Td>

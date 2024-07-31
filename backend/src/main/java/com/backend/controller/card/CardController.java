@@ -34,7 +34,6 @@ public class CardController {
 
     @PostMapping("delete")
     public void delete(@RequestBody List<Integer> cardIds) {
-        System.out.println(STR."cardIds = \{cardIds}");
         service.delete(cardIds);
     }
 

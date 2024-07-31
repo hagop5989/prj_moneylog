@@ -16,8 +16,8 @@ import AddressForm from "./board/AddressForm.jsx";
 import { faMoon, faSun } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import MemberEdit from "./member/MemberEdit.jsx";
-import AccountInfo from "./AccountInfo.jsx";
-import CardInfo from "./CardInfo.jsx";
+import AccountInfo from "./management/AccountInfo.jsx";
+import CardInfo from "./management/CardInfo.jsx";
 
 // axios interceptor 설정
 axios.interceptors.request.use((config) => {

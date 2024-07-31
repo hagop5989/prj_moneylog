@@ -31,7 +31,7 @@ export function Page1() {
   return (
     <Flex height={"80vh"} alignItems="center" justifyContent={"center"}>
       <Box>
-        <Heading>준비중입니다</Heading>
+        <Heading>가계부 설정</Heading>
         <Box>
           <Flex>
             <Box
