@@ -6,18 +6,17 @@ const MiniBox = ({
   clickedList,
   handleMiniBoxChange,
   borderColor = "gray",
+  bgColor = clickedList.includes(text) ? "blue.100 " : "",
 }) => {
-  const isSelected = clickedList.includes(text);
 
   return (
     <Box>
       <Box
         aria-valuetext={text}
         onClick={() => handleMiniBoxChange(text)}
-        bgColor={isSelected ? "blue.100 " : ""}
+        bgColor={bgColor}
         boxSize={"50px"}
         lineHeight={"50px"}
-        // border={"2px solid gray"}
         borderWidth={"2px"}
         borderColor={borderColor}
         borderRadius={"5px"}

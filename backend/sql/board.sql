@@ -1,3 +1,5 @@
+USE prj2;
+DROP TABLE board;
 create table board
 (
     id         int auto_increment
@@ -14,4 +16,6 @@ create table board
 
 create index member_id
     on board (member_id);
+
+ALTER TABLE board ADD memberId INT NOT NULL REFERENCES member(id);
 

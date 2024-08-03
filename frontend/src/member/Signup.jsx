@@ -19,6 +19,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import {myToast} from "../App.jsx";
 
 export function Signup() {
   const [newMember, setNewMember] = useState({
@@ -29,6 +30,7 @@ export function Signup() {
   const [passwordCheck, setPasswordCheck] = useState("");
   const isCheckedPassword = newMember.password === passwordCheck;
   const [emailCheck, setEmailCheck] = useState(false);
+  const [sendNumBtnHide, setSendNumBtnHide] = useState(false);
   const [nickNameCheck, setNickNameCheck] = useState(false);
   const toast = useToast();
   const navigate = useNavigate();
@@ -41,25 +43,17 @@ export function Signup() {
   const handlePwdClick = () => setPwdShow(!pwdShow);
   // const handlePwdCheckClick = () => setPwdCheckShow(!pwdCheckShow);
 
-  function mytoast(text, status) {
-    toast({
-      description: text,
-      status: status,
-      position: "top",
-      duration: "700",
-    });
-  }
 
   function handleSignupEmailCheck() {
     axios
       .get(`/api/member/signupCheck?email=${newMember.email}`)
       .then(() => {
-        mytoast("회원가입 가능합니다.", "info");
+        myToast(toast,"회원가입 가능합니다.", "info");
         setEmailCheck(true);
       })
       .catch((err) => {
         if (err.response.status === 400) {
-          mytoast(err.response.data.email, "error");
+          myToast(toast,err.response.data.email, "error");
           setEmailCheck(false);
         }
       })
@@ -70,14 +64,16 @@ export function Signup() {
     axios
       .get(`/api/member/signupCheck?nickName=${newMember.nickName}`)
       .then(() => {
-        mytoast("회원가입 가능합니다.", "info");
+        myToast(toast,"회원가입 가능합니다.", "info");
         setNickNameCheck(true);
       })
       .catch((err) => {
-        if (err.response.status === 400) {
-          mytoast(err.response.data.nickName, "error");
-          setNickNameCheck(false);
+        if (err.response.status === 400 && err.response.data.nickName) {
+          myToast(toast,err.response.data.nickName , "error");
+        } else {
+          myToast(toast,err.response.data, "error");
         }
+        setNickNameCheck(false);
       })
       .finally(() => {});
   }
@@ -93,15 +89,16 @@ export function Signup() {
     axios
       .post("/api/member/signup", newMember)
       .then(() => {
-        mytoast("회원가입 완료되었습니다.", "success");
+        myToast(toast,"회원가입 완료되었습니다.", "success");
         navigate("/");
       })
       .catch((e) => {
         if (e.response.status === 400) {
           if (e.response.data.password) {
-            mytoast(e.response.data.password, "error");
+            myToast(toast,e.response.data.password, "error");
           } else {
-            mytoast("입력 값을 다시 확인해주세요", "error");
+            myToast(toast,"입력 값을 다시 확인해주세요", "error");
+            navigate("/signup");
           }
         }
       })
@@ -119,9 +116,9 @@ export function Signup() {
       .then((res) => {
         console.log(res.data);
         if (res.data === false) {
-          mytoast("발송불가. 다시 확인해주세요", "error");
+          myToast(toast,"발송불가. 다시 확인해주세요", "error");
         } else {
-          mytoast("이메일이 발송되었습니다. 확인해주세요");
+          myToast(toast,"이메일이 발송되었습니다. 확인해주세요");
           setSeconds(120);
           startCountdown();
           setNumCheckShow(true);
@@ -144,6 +141,7 @@ export function Signup() {
         if (res.status === 200) {
           alert("인증완료");
           setNumCheckShow(false);
+          setSendNumBtnHide(true);
         }
       })
       .catch((err) => {
@@ -245,6 +243,7 @@ export function Signup() {
                   onClick={handleSignupEmailCheck}
                   {...buttonStyle()}
                   display={!emailCheck ? "block" : "none"}
+
                 >
                   <Text>중복확인</Text>
                 </Button>
@@ -254,6 +253,7 @@ export function Signup() {
                   onClick={handleSendEmail}
                   {...buttonStyle()}
                   display={emailCheck ? "block" : "none"}
+                  isDisabled={sendNumBtnHide}
                 >
                   인증번호발송
                 </Button>
@@ -286,7 +286,7 @@ export function Signup() {
             )}
             <Flex justifyContent="center">
               <Button
-                isDisabled={!emailCheck || !nickNameCheck || !passwordCheck}
+                isDisabled={!emailCheck || !nickNameCheck || !isCheckedPassword}
                 onClick={handleSignup}
                 colorScheme={"purple"}
                 w={120}

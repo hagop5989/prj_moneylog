@@ -12,4 +12,8 @@ create index board_id
 
 
 ALTER TABLE modal
-    MODIFY member_id int NOT NULL;
+    ADD member_id int NOT NULL;
+
+
+
+

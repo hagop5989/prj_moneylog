@@ -7,7 +7,6 @@ import {
   Flex,
   Image,
   Input,
-  InputRightAddon,
   ModalBody,
   ModalFooter,
   ModalHeader,
@@ -17,6 +16,7 @@ import {
   Textarea,
   Th,
   Thead,
+  Tooltip,
   Tr,
   useToast,
 } from "@chakra-ui/react";
@@ -24,15 +24,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faThumbsDown, faThumbsUp } from "@fortawesome/free-regular-svg-icons";
 import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import { LoginContext } from "../LoginProvider.jsx";
 import { myToast } from "../App.jsx";
 import {
   faCreditCard,
-  faPiggyBank,
   faSackDollar,
   faTrashCan,
-  faWallet,
   faWrench,
 } from "@fortawesome/free-solid-svg-icons";
 import MiniBox from "./Minibox.jsx";
@@ -42,10 +39,11 @@ export function MyModalBody({ editRow }) {
   const [reload, setReload] = useState(false);
   const toast = useToast();
 
-  const [clickedList, setClickedList] = useState([]);
-  const [files, setFiles] = useState([]);
   const [accountList, setAccountList] = useState([]);
   const [cardList, setCardList] = useState([]);
+  const [files, setFiles] = useState([]);
+  const [dbAccountList, setDbAccountList] = useState([]);
+  const [dbCardList, setDbCardList] = useState([]);
   const [modalRows, setModalRows] = useState([]);
   const [modalInputRow, setModalInputRow] = useState({
     modalId: "",
@@ -116,12 +114,59 @@ export function MyModalBody({ editRow }) {
       .finally(() => {});
   }
 
-  const handleModalAccountChange = (text, row) => {
-    setClickedList((prev) => ({
-      ...prev,
-      text,
-    }));
+  const handleModalAccountChange = (bank, rowId) => {
+    setModalRows((prevRows) =>
+      prevRows.map((row) => {
+        if (row.id === rowId) {
+          const newAccountList = row.accountList.includes(bank)
+            ? row.accountList.filter((item) => item !== bank)
+            : [...row.accountList, bank];
+          return { ...row, accountList: newAccountList };
+        }
+        return row;
+      }),
+    );
   };
+
+  const formatAccountNumber = (value) => {
+    if (!value) return value;
+    const accountNumber = value.replace(/[^\d]/g, "");
+
+    switch (accountNumber.length) {
+      case 11:
+        // 예: 00000000000 -> 000-00-00000
+        return accountNumber.replace(/(\d{3})(\d{2})(\d{6})/, "$1-$2-$3");
+      case 12:
+        // 예: 000000000000 -> 000-000000-00
+        return accountNumber.replace(/(\d{3})(\d{6})(\d{3})/, "$1-$2-$3");
+      case 13:
+        // 예: 0000000000000 -> 000-000000-000
+        return accountNumber.replace(/(\d{3})(\d{6})(\d{4})/, "$1-$2-$3");
+      case 14:
+        // 예: 00000000000000 -> 000-0000-00000000
+        return accountNumber.replace(/(\d{3})(\d{4})(\d{7})/, "$1-$2-$3");
+      case 15:
+        // 예: 000000000000000 -> 000-00-0000000000
+        return accountNumber.replace(/(\d{3})(\d{2})(\d{10})/, "$1-$2-$3");
+      default:
+        // 기본 포맷 (4자리씩 끊기)
+        return accountNumber.replace(/(\d{4})(?=\d)/g, "$1-");
+    }
+  };
+
+  function handleCardListChange(bank, rowId) {
+    setModalRows((prevRows) =>
+      prevRows.map((row) => {
+        if (row.id === rowId) {
+          const newCardList = row.cardList.includes(bank)
+            ? row.cardList.filter((item) => item !== bank)
+            : [...row.cardList, bank];
+          return { ...row, cardList: newCardList };
+        }
+        return row;
+      }),
+    );
+  }
 
   function handleDeleteByModalId(modalRowId) {
     axios
@@ -147,12 +192,25 @@ export function MyModalBody({ editRow }) {
   }
 
   useEffect(() => {
+    console.log("accountList changed:", accountList);
+  }, [accountList]);
+
+  useEffect(() => {
+    console.log("cardList changed:", cardList);
+  }, [cardList]);
+
+  useEffect(() => {
     axios
       .get(`/api/board/modal/list?boardId=${editRow.id}`)
       .then((res) => {
-        setModalRows(res.data.modalList);
-        setAccountList(res.data.accountList);
-        setCardList(res.data.cardList);
+        const modalListWithLists = res.data.modalList.map((row) => ({
+          ...row,
+          accountList: [],
+          cardList: [],
+        }));
+        setModalRows(modalListWithLists);
+        setDbAccountList(res.data.accountList);
+        setDbCardList(res.data.cardList);
       })
       .catch(() => {})
       .finally(() => {});
@@ -247,31 +305,65 @@ export function MyModalBody({ editRow }) {
                     <Box w={"20px"} fontSize={"xl"} mr={2}>
                       <FontAwesomeIcon icon={faSackDollar} />
                     </Box>
-                    {accountList.map((account) => (
-                      <MiniBox
-                        border={"1px solid red"}
+                    {dbAccountList.map((account) => (
+                      <Tooltip
                         key={account.id}
-                        text={account.bank.slice(0, 2)}
-                        clickedList={clickedList}
-                        handleMiniBoxChange={() =>
-                          handleModalAccountChange(account.bank, row)
-                        }
-                      />
+                        label={`
+                        은행: ${account.bank},
+                        계좌명: ${account.accountName},
+                        계좌번호: ${formatAccountNumber(account.accountNumber)},
+                        잔액: ${Number(account.accountMoney).toLocaleString()},
+                        기타: ${account.etcInfo}
+                      `}
+                        aria-label="카드 정보"
+                      >
+                        <Box>
+                          <MiniBox
+                            border={"1px solid red"}
+                            key={account.id}
+                            text={account.bank.slice(0, 2)}
+                            clickedList={row.accountList}
+                            handleMiniBoxChange={() =>
+                              handleModalAccountChange(
+                                account.bank.slice(0, 2),
+                                row.id,
+                              )
+                            }
+                          />
+                        </Box>
+                      </Tooltip>
                     ))}
                   </Flex>
                   <Flex alignItems="center" w={"100%"}>
                     <Box w={"20px"} fontSize={"xl"} mr={2}>
                       <FontAwesomeIcon icon={faCreditCard} />
                     </Box>
-                    {cardList.map((card) => (
-                      <MiniBox
+                    {dbCardList.map((card) => (
+                      <Tooltip
                         key={card.id}
-                        text={card.bank.slice(0, 2)}
-                        clickedList={clickedList}
-                        handleMiniBoxChange={() =>
-                          handleModalAccountChange(card.bank, row)
-                        }
-                      />
+                        label={`
+                      은행: ${card.bank},
+                      카드명: ${card.cardName},
+                      카드한도: ${card.cardLimit},
+                      결제일: ${card.cardPaymentDay},
+                      기타: ${card.etcInfo}
+                    `}
+                        aria-label="카드 정보"
+                      >
+                        <Box>
+                          <MiniBox
+                            key={card.id}
+                            text={card.bank.slice(0, 2)}
+                            clickedList={row.cardList}
+                            handleMiniBoxChange={() =>
+                              handleCardListChange(
+                                card.bank.slice(0, 2),
+                                row.id,
+                              )
+                            }
+                          />
+                        </Box>
+                      </Tooltip>
                     ))}
                   </Flex>
                 </Td>

@@ -18,7 +18,6 @@ function Navbar(props) {
   }, [account.isLoggedIn]);
 
   useEffect(() => {
-    console.log("Nickname in Navbar:", nickName);
   }, [nickName]);
 
   const navCss = {

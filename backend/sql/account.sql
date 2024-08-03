@@ -1,4 +1,4 @@
-use mytestprj0527;
+use prj2;
 DROP TABLE account;
 CREATE TABLE account
 (

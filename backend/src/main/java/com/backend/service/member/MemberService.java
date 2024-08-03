@@ -52,12 +52,12 @@ public class MemberService {
     public ResponseEntity signupNickNameCheck(String nickName) {
         Member foundMember = mapper.findMemberByNickName(nickName);
         if (foundMember == null) {
-            // 이메일 중복 아님
+            // 이름 중복 아님
             return ResponseEntity.ok(nickName);
         }
-        if (nickName != null && foundMember != null) {
-            // 이메일 중복 시
-            return ResponseEntity.badRequest().build();
+        else if (foundMember != null) {
+            // 이름 중복 시
+            return ResponseEntity.badRequest().body("중복 닉네임 입니다.");
         }
         // 위 케이스가 아닌데 오류 시 500 에러
         return ResponseEntity.internalServerError().build();

@@ -37,6 +37,7 @@ export function Page1() {
             <Box
               {...boxCss()}
               cursor={"pointer"}
+              bgColor={"red.200"}
               onClick={() => navigate("/card-info")}
             >
               카드
@@ -44,13 +45,13 @@ export function Page1() {
             <Box
               {...boxCss()}
               cursor={"pointer"}
+              bgColor={"blue.200"}
               onClick={() => navigate("/account-info")}
             >
               통장
             </Box>
           </Flex>
         </Box>
-        <Box>page</Box>
       </Box>
     </Flex>
   );
